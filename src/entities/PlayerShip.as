@@ -1,6 +1,7 @@
 package entities
 {
 	import org.flixel.*;
+	import games.*;
 	
 	public class PlayerShip extends Entity
 	{
@@ -13,30 +14,30 @@ package entities
 		private static var kJump:String = "SPACE";
 		
 		private var alreadyMoving:Boolean = false;
-		private var speed:Number = 50;
-		private var diagonalSpeed:Number = speed * Math.sqrt(2)/2;
 		private var deathTimer:FlxTimer;
 		private var shieldTimer:FlxTimer;
 		
-		public static var shotsInPlay:uint = 0;
+		public var shotsInPlay:uint = 0;
 		//public var screen:Entity;
-		public var ammo:FlxGroup;
-		public var lives:uint = 3;
 		public var lifeString:String = "^^^";
 		public var shields:Boolean = false;
 		public var shieldsReady:Boolean = true;
+		public var autoPilot:Boolean = false;
 		
-		public function PlayerShip(Screen:TVScreen)
+		protected var _lives:uint = 4;
+		
+		public function PlayerShip(Game:GameInvade)
 		{
-			super(Screen.x + Screen.width / 2, Screen.y + Screen.height - 4);
+			super(Game.gamePixels.width / 2, Game.gamePixels.height - 4);
 			
-			inputs.push(Screen);
-			input = Screen;
+			//inputs.push(Game);
+			game = Game;
 			loadGraphic(imgSpaceships, true, false, 16, 16);
+			addAnimation("none",[9]);
 			addAnimation("idle",[0]);
 			addAnimation("die",[3, 4, 5, 6], 6, false);
 			addAnimation("shield",[1,2], 2, true);
-			addAnimation("shieldsReady",[7, 8, 0], 6, false);
+			addAnimation("shieldsReady",[7, 8, 0], 3, false);
 			
 			width = 8;
 			height = 8;
@@ -44,6 +45,8 @@ package entities
 			x -= width / 2;
 			y -= height;
 			color = 0x00ffff;
+			shotSpeed = 60;
+			speed = 50;
 			play("idle");
 			//alive = false;
 			deathTimer = new FlxTimer();
@@ -54,19 +57,23 @@ package entities
 		{
 			super.update();
 			
-			if (alive) if (input) if (input is TVScreen)
+			if (alive) if (game)
 			{
-				if (x - 4 < input.x) x = input.x + 4;
-				else if (x + width + 4 > input.x + input.width) x = input.x + input.width - width - 4;
-				if (y < input.y + input.height - 24) y = input.y + input.height - 24;
-				else if (y + height + 4> input.y + input.height) y = input.y + input.height - height - 4;
+				if (x - 4 < 0) x = 4;
+				else if (x + width + 4 > game.gamePixels.width) x = game.gamePixels.width - width - 4;
+				if (y < game.gamePixels.height - 24) y = game.gamePixels.height - 24;
+				else if (y + height + 4 > game.gamePixels.height) y = game.gamePixels.height - height - 4;
 			}
 			if (!alive)
 			{
 				alpha -= 0.02;
 			}
 			
-			//FlxG.log("pos= " + alive + " " + x + " " + y);
+		}
+		
+		override public function draw():void
+		{	
+			drawOntoSprite(game.gamePixels);
 		}
 		
 		override public function kill():void
@@ -74,6 +81,7 @@ package entities
 			play("die");
 			if (alive) 
 			{
+				deathTimer.stop();
 				deathTimer.start(1, 1, onTimerDestroy);
 				alive = false;
 				Entity.playRandomSound(sfxExplosion, 0.8);
@@ -86,7 +94,39 @@ package entities
 			{
 				x = -1000;
 				y = -1000;
+				play("none");
+				if (autoPilot) reset(game.gamePixels.width / 2 - width / 2, game.gamePixels.height - height - 4);
 			}
+		}
+		
+		override public function defaultInput():uint
+		{
+			if (autoPilot)
+			{
+				controls = lastControls;
+				var _seed:Number = FlxG.random();
+				if (_seed < 0.95) controls &= Entity.DPAD;
+				else
+				{
+					controls = Entity.NONE;
+					_seed = Math.floor(FlxG.random() * 6);
+					switch (_seed) {
+						case 0: controls |= Entity.LEFT; break;
+						case 1: controls |= Entity.RIGHT; break;
+					}
+					_seed = Math.floor(FlxG.random() * 60);
+					switch (_seed) {
+						case 0: controls |= Entity.UP; break;
+						case 1: controls |= Entity.DOWN; break;
+					}
+				}
+				_seed = FlxG.random();
+				if (_seed <= 1/900) controls |= Entity.BUTTON_B;
+				else if (_seed <= 1/60) controls |= Entity.BUTTON_A;
+				//FlxG.log(controls);
+				return controls;
+			}
+			else return game.controls;
 		}
 		
 		override public function translateInput():void
@@ -96,11 +136,11 @@ package entities
 			{
 				if ((controls & Entity.START) > 0 && (lastControls & Entity.START) == 0)
 				{
-					reset(input.x + input.width / 2 - width / 2, input.y + input.height - height - 4);
+					reset(game.width / 2 - width / 2, game.height - height - 4);
 				}
 			}
 			alreadyMoving = false;
-			if (!alive || !TVScreen.gameStarted) return;
+			if (!alive) return;
 			if ((controls & Entity.BUTTON_B) > 0 && z == 0 && (lastControls & Entity.BUTTON_B) == 0) shield();
 			if ((controls & Entity.UP) > 0) move("up");
 			if ((controls & Entity.DOWN) > 0) move("down");
@@ -114,62 +154,70 @@ package entities
 			if (lives == 0) return;
 			
 			super.reset(X, Y);
-			FlxG.log(x + " " + y);
 			lives -= 1;
 			alpha = 1;
-			shields = true;
+			deathTimer.stop();
 			shieldsReady = true;
-			shieldTimer.start(2, 1, onFreeShield);
-			Entity.playRandomSound(sfxActivateShields, 0.8);
-			color = 0x00ff00;
-			play("shield");
+			shields = false;
+			play("idle");
+			shield(true);
+			FlxG.log(lives);
+		}
+		
+		public function get lives():int
+		{
+			return _lives;
+		}
+		
+		public function set lives(Lives:int):void
+		{
+			_lives = Lives;
 			if (lives > 2) lifeString = "^^^";
 			else if (lives == 2) lifeString = "^^";
 			else if (lives == 1) lifeString = "^";
 			else lifeString = "";
 		}
 		
-		private function shield():void
+		private function shield(FreeShield:Boolean = false):void
 		{
-			if (shieldsReady && !shields)
+			if ((shieldsReady || FreeShield) && !shields)
 			{
 				color = 0x00ff00;
 				shields = true;
-				shieldsReady = false;
+				shieldsReady = FreeShield;
 				play("shield");
-				shieldTimer.start(2, 1, onShieldDeactivate);
+				shieldTimer.stop();
+				shieldTimer.start(2, 1, onShieldUpdate);
 				Entity.playRandomSound(sfxActivateShields, 0.8);
 			}
 		}
 		
-		private function onFreeShield(Timer:FlxTimer):void
+		private function onShieldUpdate(Timer:FlxTimer):void
 		{
-			if (alive) 
+			if (alive)
 			{
-				play("shieldsReady");
-				color = 0x00ffff;
-				shields = false;
-				Entity.playRandomSound(sfxShieldsReady, 0.8);
+				if (!shields && !shieldsReady) //ready the shields
+				{
+					shieldsReady = true;
+					play("shieldsReady");
+					Entity.playRandomSound(sfxShieldsReady, 0.8);
+				}
+				else if (shields && !shieldsReady) //deactivate shield
+				{
+					play("idle");
+					color = 0x00ffff;
+					shields = false;
+					shieldTimer.stop();
+					shieldTimer.start(15, 1, onShieldUpdate);
+				}
+				else if (shields && shieldsReady) //deactivate "free" shield
+				{
+					play("shieldsReady");
+					color = 0x00ffff;
+					shields = false;
+					Entity.playRandomSound(sfxShieldsReady, 0.8);
+				}
 			}
-			//shieldTimer.start(10, 1, onShieldActivate);
-		}
-		
-		private function onShieldDeactivate(Timer:FlxTimer):void
-		{
-			if (alive) 
-			{
-				play("idle");
-				color = 0x00ffff;
-				shields = false;
-			}
-			shieldTimer.start(15, 1, onShieldActivate);
-		}
-		
-		private function onShieldActivate(Timer:FlxTimer):void
-		{
-			shieldsReady = true;
-			play("shieldsReady");
-			Entity.playRandomSound(sfxShieldsReady, 0.8);
 		}
 		
 		private function move(Direction:String):void
@@ -192,9 +240,9 @@ package entities
 		
 		public function attack():void
 		{
-			if (ammo) if (shotsInPlay < 3)
+			if (shotsInPlay < 3) if (GameInvade(game).spawnLaser(this)) 
 			{
-				Laser.shoot(x + width / 2, y + height / 2, 60, true);
+				shotsInPlay += 1;
 				Entity.playRandomSound(sfxLaser, 0.5);
 			}
 		}

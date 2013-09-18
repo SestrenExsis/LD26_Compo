@@ -1,6 +1,7 @@
 package entities
 {
 	import org.flixel.*;
+	import screens.GameState;
 	
 	public class Player extends Entity
 	{
@@ -13,10 +14,8 @@ package entities
 		private static var kJump:String = "SPACE";
 		
 		private var alreadyMoving:Boolean = false;
-		private var speed:Number = 100;
-		private var diagonalSpeed:Number = speed * Math.sqrt(2)/2;
-		private var jumpHeight:Number = 6;
-		private var jumpSpeed:Number = Math.sqrt(2 * Entity.GRAVITY * jumpHeight);
+		private var jumpHeight:Number = 9;
+		private var jumpSpeed:Number = Math.sqrt(2 * GameState.GRAVITY * jumpHeight);
 		private var upAndDownMultiplier:Number = 0.75;
 		private var jumpVelocityMultiplier:Number = 2;
 				
@@ -42,6 +41,7 @@ package entities
 			height = 8;
 			offset.y = 16;
 			offset.x = 4;
+			speed = 150;
 			play("idle_down");
 		}
 		
@@ -55,7 +55,7 @@ package entities
 				if (x - 8 < input.x) x = input.x + 8;
 				else if (x + width + 8 > input.x + input.width) x = input.x + input.width - width - 8;
 				if (y < input.y) y = input.y;
-				else if (y + height> input.y + (0.6) * input.height) y = input.y + (0.6) * input.height - height;
+				else if (y + height > input.y + 0.9 * input.height) y = input.y + 0.9 * input.height - height;
 			}
 		}
 		
@@ -152,7 +152,7 @@ package entities
 			{
 				var delta:Number;
 				var velocityDelta:Number;
-				velocityDelta = (FlxU.computeVelocity(zVelocity,-Entity.GRAVITY,0) - zVelocity) / 2;
+				velocityDelta = (FlxU.computeVelocity(zVelocity,-GameState.GRAVITY,0) - zVelocity) / 2;
 				zVelocity += velocityDelta;
 				delta = zVelocity*FlxG.elapsed;
 				zVelocity += velocityDelta;

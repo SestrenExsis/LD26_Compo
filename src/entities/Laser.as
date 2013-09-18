@@ -6,15 +6,14 @@ package entities
 	{
 		//[Embed(source="../assets/images/player.png")] protected static var imgPlayer:Class;
 				
-		public static var selected:Laser;
-		public static var group:FlxGroup;
-		
+		public var owner:Entity;
 		public var belongsToPlayer:Boolean = true;
 		
-		public function Laser(X:Number = -1000, Y:Number = -1000)
+		public function Laser(Game:VideoGame)
 		{
-			super(X, Y);
+			super(-1000, -1000);
 			
+			game = Game;
 			//loadGraphic(imgPlayer, true, true, 16, 24);
 			makeGraphic(4, 4, 0xffffff00);
 			
@@ -26,42 +25,52 @@ package entities
 		
 		override public function update():void
 		{
+			/*if (game) if (game.paused)
+			{
+				x = last.x;
+				y = last.y;
+			}*/
 			super.update();
 			
-			if (input)
+			if (game)
 			{
-				if (x + width < input.x || x > input.x + input.width || y + height < input.y || y > input.y + input.height) 
+				if (x + width < 0 || x > game.gamePixels.width || y + height < 0 || y > game.gamePixels.height) 
 				{
 					kill();
 				}
 			}
 		}
 		
+		override public function draw():void
+		{	
+			drawOntoSprite(game.gamePixels);
+		}
+		
 		override public function kill():void
 		{
 			super.kill();
-			if (belongsToPlayer) PlayerShip.shotsInPlay = Math.max(0,PlayerShip.shotsInPlay - 1);
+			if (owner is PlayerShip) (owner as PlayerShip).shotsInPlay = Math.max(0,(owner as PlayerShip).shotsInPlay - 1);
 		}
 		
-		public static function shoot(X:Number, Y:Number, Speed:Number, BelongsToPlayer:Boolean = false):void
+		public function spawn(Owner:Entity):void
 		{
-			selected = Laser(group.getFirstAvailable(Laser));
-			if (selected)
+			owner = Owner;
+			var _speed:Number = owner.shotSpeed;
+			var _heightOffset:Number = owner.height / 2;
+			if (Owner is PlayerShip) _heightOffset *= -1;
+			reset(owner.x + owner.width / 2 - width / 2, owner.y + owner.height / 2 - height / 2 + _heightOffset);
+			velocity.x = 0;
+			velocity.y = owner.shotSpeed;
+			if (owner is PlayerShip) 
 			{
-				selected.reset(X - selected.width / 2, Y - selected.height / 2);
-				selected.belongsToPlayer = BelongsToPlayer;
-				if (BelongsToPlayer) PlayerShip.shotsInPlay += 1;
-				selected.velocity.x = 0;
-				if (BelongsToPlayer) 
-				{
-					selected.velocity.y = -Speed;
-					selected.color = 0x00ffff;
-				}
-				else 
-				{
-					selected.velocity.y = Speed / 2;
-					selected.color = 0xff0000;
-				}
+				velocity.y *= -1;
+				color = 0x00ffff;
+				belongsToPlayer = true;
+			}
+			else 
+			{
+				color = 0xff0000;
+				belongsToPlayer = false;
 			}
 		}
 	}

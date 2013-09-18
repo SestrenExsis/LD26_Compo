@@ -30,52 +30,52 @@ package
 			super.update();
 		}
 		
-		public function onButtonMenu():void
+		public static function onButtonMenu():void
 		{
 			fadeToMenu();
 		}
 		
-		public function fadeToMenu(Timer:FlxTimer = null):void
+		public static function fadeToMenu(Timer:FlxTimer = null):void
 		{
 			FlxG.fade(0xff000000, 0.5, goToMenu);
 		}
 		
-		public function goToMenu():void
+		public static function goToMenu():void
 		{
 			FlxG.switchState(new MenuState);
 		}
 		
-		public function onButtonGame():void
+		public static function onButtonGame():void
 		{
 			fadeToGame();
 		}
 		
-		public function fadeToGame(Timer:FlxTimer = null):void
+		public static function fadeToGame(Timer:FlxTimer = null):void
 		{
 			FlxG.fade(0xff000000, 0.5, goToGame);
 		}
 		
-		public function goToGame():void
+		public static function goToGame():void
 		{
 			FlxG.switchState(new GameState);
 		}
 		
-		public function onButtonStory():void
+		public static function onButtonStory():void
 		{
 			fadeToStory();
 		}
 		
-		public function fadeToStory(Timer:FlxTimer = null):void
+		public static function fadeToStory(Timer:FlxTimer = null):void
 		{
 			FlxG.fade(0xff000000, 0.5, goToStory);
 		}
 		
-		public function goToStory():void
+		public static function goToStory():void
 		{
 			FlxG.switchState(new StoryState);
 		}
 		
-		public function formatScore(Num:Number, Digits:uint = 10):String
+		public static function formatScore(Num:Number, Digits:uint = 10):String
 		{
 			var output:String = "";
 			for (var i:Number = 0; i < Digits; i++)

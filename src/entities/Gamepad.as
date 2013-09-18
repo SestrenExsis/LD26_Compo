@@ -4,28 +4,32 @@ package entities
 	
 	public class Gamepad extends Entity
 	{
+		//keyboard and mouse
 		[Embed(source="../assets/images/gamepad.png")] protected static var imgGamepad:Class;
 		
-		public static var bUp:FlxRect = new FlxRect(48, 10, 14, 14);
-		public static var bDown:FlxRect = new FlxRect(42, 29, 14, 14);
-		public static var bLeft:FlxRect = new FlxRect(25, 20, 14, 14);
-		public static var bRight:FlxRect = new FlxRect(66, 20, 14, 14);
-		public static var bSelect:FlxRect = new FlxRect(101, 21, 28, 14);
-		public static var bStart:FlxRect = new FlxRect(139, 21, 28, 14);
-		public static var bAttack:FlxRect = new FlxRect(182, 17, 29, 21);
-		public static var bSpecial:FlxRect = new FlxRect(221, 15, 29, 21);
+		public static var bUp:FlxRect = new FlxRect(62, 22, 40, 38);
+		public static var bDown:FlxRect = new FlxRect(62, 100, 40, 44);
+		public static var bLeft:FlxRect = new FlxRect(24, 60, 38, 46);
+		public static var bRight:FlxRect = new FlxRect(102, 60, 38, 46);
+		public static var bSelect:FlxRect = new FlxRect(164, 99, 53, 17);
+		public static var bStart:FlxRect = new FlxRect(223, 99, 53, 17);
+		public static var bAttack:FlxRect = new FlxRect(305, 64, 57, 60);
+		public static var bSpecial:FlxRect = new FlxRect(389, 64, 57, 60);
 		
 		public static var buttonRects:Array = [bUp, bDown, bLeft, bRight, bSelect, bStart, bAttack, bSpecial];
 		public static var button:FlxRect;
 				
-		public function Gamepad(X:Number = 0, Y:Number = 0)
+		public function Gamepad()
 		{
-			super(X, Y);
+			var _x:Number = 0.5 * (FlxG.width - 477);
+			var _y:Number = FlxG.height - 171 + 10;
 			
-			loadGraphic(imgGamepad, false, false, 287, 86);
+			super(_x, _y);
 			
-			width = 287;
-			height = 86;
+			loadGraphic(imgGamepad, false, false, 477, 171);
+			
+			width = 477;
+			height = 171;
 		}
 		
 		override public function update():void

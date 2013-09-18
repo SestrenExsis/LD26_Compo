@@ -21,6 +21,9 @@ package screens
 			
 			overlay = new FlxSprite(0, 0);
 			overlay.loadGraphic(imgStory, true, false, 320, 240);
+			overlay.scale.x = overlay.scale.y = 1.5;
+			overlay.x += 0.5 * (overlay.width * (overlay.scale.x - 1));
+			overlay.y += 0.5 * (overlay.height * (overlay.scale.y - 1));
 			overlay.addAnimation("none",[0]);
 			overlay.addAnimation("intro",[1]);
 			overlay.addAnimation("ending",[2,2,3,3], 3);
@@ -31,10 +34,12 @@ package screens
 			infoTimer = new FlxTimer();
 			infoTimer.start(0.01, 1, onTimerNextSlide);
 			
-			info = new FlxText(16, FlxG.height - 32, FlxG.width - 16, "");
+			info = new FlxText(24, FlxG.height - 48, FlxG.width - 24, "");
+			info.size = 12;
 			info.alignment = "left";
 			
-			info2 = new FlxText(16, FlxG.height - 16, FlxG.width - 16, "");
+			info2 = new FlxText(24, FlxG.height - 24, FlxG.width - 24, "");
+			info2.size = 12;
 			info2.alignment = "left";
 			
 			add(overlay);
@@ -46,17 +51,18 @@ package screens
 		{	
 			super.update();
 			
-			if (storyIndex >= 2 && FlxG.mouse.justPressed()) 
-			{
-				FlxG.log("skip");
-				if (playEnding) onButtonMenu();
-				else onButtonGame();
-			}
+			if (FlxG.mouse.justPressed()) forceNextSlide();
+		}
+		
+		private function forceNextSlide():void
+		{
+			infoTimer.stop();
+			infoTimer.start(0.01, 1, onTimerNextSlide);
 		}
 		
 		public function onTimerNextSlide(Timer:FlxTimer):void
 		{
-			FlxG.log("storyIndex = " + storyIndex);
+			//FlxG.log("storyIndex = " + storyIndex);
 			if (playEnding)
 			{
 				if (storyIndex == 0)
@@ -112,7 +118,6 @@ package screens
 			}
 			else
 			{
-				FlxG.log("intro");
 				if (storyIndex == 0)
 				{
 					overlay.play("intro");

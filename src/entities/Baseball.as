@@ -1,6 +1,7 @@
 package entities
 {
 	import org.flixel.*;
+	import screens.GameState;
 	
 	public class Baseball extends Entity
 	{
@@ -41,7 +42,7 @@ package entities
 				{
 					var delta:Number;
 					var velocityDelta:Number;
-					velocityDelta = (FlxU.computeVelocity(zVelocity,-Entity.GRAVITY,0) - zVelocity) / 2;
+					velocityDelta = (FlxU.computeVelocity(zVelocity,-GameState.GRAVITY,0) - zVelocity) / 2;
 					zVelocity += velocityDelta;
 					delta = zVelocity*FlxG.elapsed;
 					zVelocity += velocityDelta;
@@ -81,9 +82,9 @@ package entities
 			{
 				var _dist:Number = Math.sqrt(Math.pow(X1 - X2, 2) + Math.pow(Y1 - Y2, 2) + Math.pow(Z1, 2));
 				var _time:Number = 0;
-				if (_dist > 80) _time = 0.25;
-				else if (_dist > 40) _time = 0.1;
-				else if (_dist > 20) _time = 0.05;
+				if (_dist > 150) _time = 0.15;
+				else if (_dist > 75) _time = 0.075;
+				else if (_dist > 25) _time = 0.0375;
 				else
 				{
 					selected.reset(X2 - selected.width / 2, Y2 - selected.height / 2);

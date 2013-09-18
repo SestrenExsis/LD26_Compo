@@ -28,7 +28,7 @@ package entities
 		{
 			if ((controls & Entity.START) > 0) 
 			{
-				if (gameStarted) GameState.restartGame = true;
+				//if (gameStarted) GameState.restartGame = true;
 				gameStarted = true;
 			}
 		}

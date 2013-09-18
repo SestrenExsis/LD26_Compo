@@ -1,46 +1,31 @@
 package entities
 {
 	import org.flixel.*;
+	import games.*;
 	
 	public class EnemyShip extends Entity
 	{
 		[Embed(source="../assets/images/spaceships.png")] protected static var imgSpaceships:Class;
 		
 		private var alreadyMoving:Boolean = false;
-		private var speed:Number = 30;
-		private var diagonalSpeed:Number = speed * Math.sqrt(2)/2;
 		private var timer:FlxTimer;
-		private var target:FlxPoint;
 		private var slotX:uint = 0;
 		private var slotY:uint = 0;
 		public var type:String = "";
 		public var behavior:String = "";
 		
-		private static var slots:Array = [[0, 0, 0, 0, 0, 0],
-			                              [0, 0, 0, 0, 0, 0]];
-		public static var formation:FlxPoint = new FlxPoint(0, 0);
-		public static var formationMax:FlxPoint = new FlxPoint(48, 6);
-		public static var formationNegativeDirection:Boolean = false;
-		public static var formationSpeed:Number = 0.1;
-		public static var maxSlots:uint = 12;
-		public static var slotsFilled:uint = 0;
-		public static var selected:EnemyShip;
-		public static var group:FlxGroup;
-		public static var ammo:FlxGroup;
-		public static var handicap:Number = 5;
-		
-		public function EnemyShip(Screen:TVScreen)
+		public function EnemyShip(Game:GameInvade)
 		{
-			super(Screen.x + Screen.width / 2, 10);
+			super(Game.gamePixels.width / 2, 10);
 			
-			inputs.push(Screen);
-			input = Screen;
+			//inputs.push(Game);
+			game = Game;
 			loadGraphic(imgSpaceships, true, true, 16, 16);
-			addAnimation("shooter",[10, 11], 2, true);
-			addAnimation("bomber_down",[20, 21], 2, true);
-			addAnimation("bomber_up",[22, 23], 2, true);
-			addAnimation("bomber_side",[24, 25], 2, true);
-			addAnimation("die",[12, 13, 14, 15], 8, false);
+			addAnimation("shooter", [10, 11], 2, true);
+			addAnimation("bomber_down", [20, 21], 2, true);
+			addAnimation("bomber_up", [22, 23], 2, true);
+			addAnimation("bomber_side", [24, 25], 2, true);
+			addAnimation("die", [12, 13, 14, 15], 8, false);
 			
 			width = 8;
 			height = 8;
@@ -48,24 +33,33 @@ package entities
 			x -= width / 2;
 			y -= height;
 			color = 0xff00ff;
+			shotSpeed = 25;
+			speed = 30;
 			type = "shooter";
 			play("shooter");
 			timer = new FlxTimer();
 			target = new FlxPoint();
-			kill();
+			removeFromPlay();
 		}
 		
 		override public function update():void
 		{
+			/*if (game) if (game.paused)
+			{
+				x = last.x;
+				y = last.y;
+				timer.paused = true;
+			}
+			else timer.paused = false;*/
 			super.update();
 			
-			if (input) if (input is TVScreen)
+			if (game)
 			{
 				checkBehavior();
 				//if (x - 4 < input.x) x = input.x + 4;
 				//else if (x + width + 4 > input.x + input.width) x = input.x + input.width - width - 4;
-				if (y + height < input.y) visible = false; //y = input.y - height;
-				else if (y > input.y + input.height) visible = false;//y = input.y + input.height - height - 4;
+				if (y + height < 0) visible = false; //y = input.y - height;
+				else if (y > game.gamePixels.height) visible = false;//y = input.y + input.height - height - 4;
 				else visible = true;
 			}
 			if (!alive)
@@ -74,17 +68,23 @@ package entities
 			}
 		}
 		
+		override public function draw():void
+		{	
+			drawOntoSprite(game.gamePixels);
+		}
+		
 		override public function kill():void
 		{
 			play("die");
 			behavior = "dead";
 			if (alive) 
 			{
+				timer.stop();
 				timer.start(1, 1, onTimerDestroy);
 				alive = false;
-				slots[slotY][slotX] = 0;
-				slotsFilled = Math.max(0,slotsFilled - 1);
-				if (TVScreen.gameStarted) Entity.playRandomSound(sfxExplosion, 0.8);
+				GameInvade(game).slots[slotY][slotX] = 0;
+				GameInvade(game).slotsFilled = Math.max(0,GameInvade(game).slotsFilled - 1);
+				if (GameInvade(game).gameHasStarted) Entity.playRandomSound(sfxExplosion, 0.8);
 			}
 		}
 		
@@ -92,17 +92,17 @@ package entities
 		{
 			if (behavior == "spawn")
 			{
-				var _randomSlot:uint = Math.ceil(FlxG.random()*(maxSlots - slotsFilled));
+				var _randomSlot:uint = Math.ceil(FlxG.random()*(GameInvade(game).maxSlots - GameInvade(game).slotsFilled));
 				var _index:uint = 0;
 				for (var _y:uint = 0; _y < 2; _y++)
 				{
 					for (var _x:uint = 0; _x < 6; _x++)
 					{
-						if (slots[_y][_x] == 0) _index++;
+						if (GameInvade(game).slots[_y][_x] == 0) _index++;
 						if (_index == _randomSlot)
 						{
-							slotsFilled += 1;
-							slots[_y][_x] = 1;
+							GameInvade(game).slotsFilled += 1;
+							GameInvade(game).slots[_y][_x] = 1;
 							slotX = _x;
 							slotY = _y;
 							setTargetPosition();
@@ -121,8 +121,9 @@ package entities
 			}
 			else if (behavior == "inPosition")
 			{
-				if (type == "shooter") timer.start(FlxG.random() * 8 + handicap * 3, 1, onTimerAttack);
-				else if (type == "bomber") timer.start(FlxG.random() * 4 + handicap * 1, 1, onTimerAttack);
+				timer.stop();
+				if (type == "shooter") timer.start(FlxG.random() * 4 + GameInvade(game).handicap * 0.5, 1, onTimerAttack);
+				else if (type == "bomber") timer.start(FlxG.random() * 4 + GameInvade(game).handicap * 1, 1, onTimerAttack);
 				setTargetPosition();
 				moveTowardTarget();
 				behavior = "idle";
@@ -146,12 +147,12 @@ package entities
 						if (_seed < 0.5) 
 						{
 							facing = FlxObject.RIGHT;
-							target.x = 2 + input.x;
+							target.x = 2;
 						}
 						else 
 						{
 							facing = FlxObject.LEFT;
-							target.x = input.x + input.width - 10;
+							target.x = game.gamePixels.width - 10;
 						}
 					} 
 					else if (_curAnim.name == "bomber_side")
@@ -175,31 +176,8 @@ package entities
 		
 		public function setTargetPosition():void
 		{
-			target.x = 2 + input.x + formation.x + slotX * 10;
-			target.y = 10 + input.y + formation.y + slotY * 10;
-		}
-		
-		public function moveTowardTarget():void
-		{
-			var _dist:Number;
-			var _ratio:Number;
-			if (x != target.x || y != target.y)
-			{
-				_point.x = x;
-				_point.y = y;
-				_dist = FlxU.getDistance(_point, target);
-				_ratio = (speed * FlxG.elapsed) / _dist;
-				if (_ratio >= 1)
-				{
-					x = target.x;
-					y = target.y;
-				}
-				else
-				{
-					x = (1 - _ratio) * x + _ratio * target.x;
-					y = (1 - _ratio) * y + _ratio * target.y;
-				}
-			}
+			target.x = 2 + GameInvade(game).formation.x + slotX * 10;
+			target.y = 10 + GameInvade(game).formation.y + slotY * 10;
 		}
 		
 		public function onTimerDestroy(Timer:FlxTimer):void
@@ -216,11 +194,12 @@ package entities
 		{
 			if (!alive) return;
 			attack();
-			var _multi:Number = 1;
-			if (EnemyShip.slotsFilled > 8) _multi *= 1.5;
-			else if (EnemyShip.slotsFilled > 4) _multi *= 2; 
-			if (type == "shooter") Timer.start((FlxG.random() * 24 + 6 * handicap) * _multi, 1, onTimerAttack);
-			else if (type == "bomber") Timer.start(FlxG.random() * 24 + 12 * handicap, 1, onTimerAttack);
+			var _multi:Number;
+			if (GameInvade(game).slotsFilled > 8) _multi *= 1.5;
+			else if (GameInvade(game).slotsFilled > 4) _multi *= 1.25;
+			else _multi = 1;
+			if (type == "shooter") Timer.start((FlxG.random() * 24 + 6 * GameInvade(game).handicap) * _multi, 1, onTimerAttack);
+			else if (type == "bomber") Timer.start(FlxG.random() * 24 + 12 * GameInvade(game).handicap, 1, onTimerAttack);
 		}
 		
 		public function onTimerDrop(Timer:FlxTimer):void
@@ -244,30 +223,26 @@ package entities
 		{
 			if (type == "shooter")
 			{
-				if (ammo) Laser.shoot(x + width / 2, y + height / 2, 50, false);
+				if (GameInvade(game).lasers) GameInvade(game).spawnLaser(this);
 			}
 			else if (type == "bomber" && _curAnim.name == "bomber_down")
 			{
 				behavior = "special";
-				target.y = input.y + input.height - 10;
+				target.y = game.gamePixels.height - 10;
 			}
 		}
 		
-		public static function spawn(X:Number, Y:Number, Type:String):void
+		public function spawn(X:Number, Y:Number, Type:String):void
 		{
-			selected = EnemyShip(group.getFirstAvailable(EnemyShip));
-			if (selected)
+			reset(X - width / 2, Y - height - 100);
+			velocity.x = velocity.y = 0;
+			type = Type;
+			behavior = "spawn";
+			if (Type == "shooter")
 			{
-				selected.reset(X - selected.width / 2, Y - selected.height / 2);
-				selected.velocity.x = 0;
-				selected.type = Type;
-				selected.behavior = "spawn";
-				if (Type == "shooter")
-				{
-					selected.play("shooter");
-				}
-				else selected.play("bomber_down");
+				play("shooter");
 			}
+			else play("bomber_down");
 		}
 	}
 }
