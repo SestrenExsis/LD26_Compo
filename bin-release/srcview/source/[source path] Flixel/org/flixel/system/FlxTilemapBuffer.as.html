@@ -1,0 +1,129 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FlxTilemapBuffer.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">system</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">BitmapData</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Point</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Rectangle</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FlxCamera</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FlxG</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FlxU</span>;
+
+    <span class="ActionScriptASDoc">/**
+     * A helper object to keep tilemap drawing performance decent across the new multi-camera system.
+     * Pretty much don't even have to think about this class unless you are doing some crazy hacking.
+     * 
+     * @author    Adam Atomic
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">FlxTilemapBuffer</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/**
+         * The current X position of the buffer.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">x</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * The current Y position of the buffer.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">y</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * The width of the buffer (usually just a few tiles wider than the camera).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">width</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * The height of the buffer (usually just a few tiles taller than the camera).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">height</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Whether the buffer needs to be redrawn.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">dirty</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/**
+         * How many rows of tiles fit in this buffer.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">rows</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * How many columns of tiles fit in this buffer.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">columns</span>:<span class="ActionScriptDefault_Text">uint</span>;
+
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_pixels</span>:<span class="ActionScriptDefault_Text">BitmapData</span>;    
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_flashRect</span>:<span class="ActionScriptDefault_Text">Rectangle</span>;
+
+        <span class="ActionScriptASDoc">/**
+         * Instantiates a new camera-specific buffer for storing the visual tilemap data.
+         *  
+         * @param TileWidth        The width of the tiles in this tilemap.
+         * @param TileHeight    The height of the tiles in this tilemap.
+         * @param WidthInTiles    How many tiles wide the tilemap is.
+         * @param HeightInTiles    How many tiles tall the tilemap is.
+         * @param Camera        Which camera this buffer relates to.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">FlxTilemapBuffer</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">TileWidth</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">TileHeight</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">WidthInTiles</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">HeightInTiles</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Camera</span>:<span class="ActionScriptDefault_Text">FlxCamera</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Camera</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">camera</span>;
+
+            <span class="ActionScriptDefault_Text">columns</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxU</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ceil</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">TileWidth</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">+</span>1;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">columns</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">WidthInTiles</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">columns</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">WidthInTiles</span>;
+            <span class="ActionScriptDefault_Text">rows</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxU</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ceil</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">TileHeight</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">+</span>1;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">rows</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">HeightInTiles</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">rows</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">HeightInTiles</span>;
+            
+            <span class="ActionScriptDefault_Text">_pixels</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">BitmapData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">columns</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">TileWidth</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">rows</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">TileHeight</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span>0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;            
+            <span class="ActionScriptDefault_Text">_flashRect</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">dirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Clean up memory.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_pixels</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Fill the buffer with the specified color.
+         * Default value is transparent.
+         * 
+         * @param    Color    What color to fill with, in 0xAARRGGBB hex format.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fill</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">fillRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Color</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Read-only, nab the actual buffer &lt;code&gt;BitmapData&lt;/code&gt; object.
+         * 
+         * @return    The buffer bitmap data.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">pixels</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">BitmapData</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_pixels</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Just stamps this buffer onto the specified camera at the specified location.
+         * 
+         * @param    Camera        Which camera to draw the buffer onto.
+         * @param    FlashPoint    Where to draw the buffer at in camera coordinates.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">draw</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span>:<span class="ActionScriptDefault_Text">FlxCamera</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">FlashPoint</span>:<span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">buffer</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyPixels</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">FlashPoint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

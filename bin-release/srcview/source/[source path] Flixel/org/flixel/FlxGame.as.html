@@ -1,0 +1,812 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FlxGame.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Bitmap</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">BitmapData</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Graphics</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Sprite</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">StageAlign</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">StageScaleMode</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">events</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">*</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Point</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">AntiAliasType</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">GridFitType</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">TextField</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">TextFormat</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ui</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Mouse</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Timer</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getTimer</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">plugin</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">TimerManager</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">system</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FlxDebugger</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">system</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FlxReplay</span>;
+
+    <span class="ActionScriptASDoc">/**
+     * FlxGame is the heart of all flixel games, and contains a bunch of basic game loops and things.
+     * It is a long and sloppy file that you shouldn't have to worry about too much!
+     * It is basically only used to create your game object in the first place,
+     * after that FlxG and FlxState have all the useful stuff you actually need.
+     * 
+     * @author    Adam Atomic
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">FlxGame</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">Sprite</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Embed</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"data/nokiafc22.ttf"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">fontFamily</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"system"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">embedAsCFF</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"false"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">junk</span>:<span class="ActionScriptDefault_Text">String</span>;
+        <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Embed</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"data/beep.mp3"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">SndBeep</span>:<span class="ActionScriptDefault_Text">Class</span>;
+        <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Embed</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"data/logo.png"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">ImgLogo</span>:<span class="ActionScriptDefault_Text">Class</span>;
+
+        <span class="ActionScriptASDoc">/**
+         * Sets 0, -, and + to control the global volume sound volume.
+         * @default true
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">useSoundHotKeys</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/**
+         * Tells flixel to use the default system mouse cursor instead of custom Flixel mouse cursors.
+         * @default false
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">useSystemCursor</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/**
+         * Initialize and allow the flixel debugger overlay even in release mode.
+         * Also useful if you don't use FlxPreloader!
+         * @default false
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">forceDebugger</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+
+        <span class="ActionScriptASDoc">/**
+         * Current game state.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_state</span>:<span class="ActionScriptDefault_Text">FlxState</span>;
+        <span class="ActionScriptASDoc">/**
+         * Mouse cursor.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_mouse</span>:<span class="ActionScriptDefault_Text">Sprite</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Class type of the initial/first game state for the game, usually MenuState or something like that.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_iState</span>:<span class="ActionScriptDefault_Text">Class</span>;
+        <span class="ActionScriptASDoc">/**
+         * Whether the game object's basic initialization has finished yet.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_created</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Total number of milliseconds elapsed since game start.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_total</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Total number of milliseconds elapsed since last update loop.
+         * Counts down as we step through the game loop.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_accumulator</span>:<span class="ActionScriptDefault_Text">int</span>;
+        <span class="ActionScriptASDoc">/**
+         * Whether the Flash player lost focus.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_lostFocus</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/**
+         * Milliseconds of time per step of the game loop.  FlashEvent.g. 60 fps = 16ms.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_step</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Framerate of the Flash player (NOT the game loop). Default = 30.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_flashFramerate</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Max allowable accumulation (see _accumulator).
+         * Should always (and automatically) be set to roughly 2x the flash player framerate.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_maxAccumulation</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * If a state change was requested, the new state object is stored here until we switch to it.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_requestedState</span>:<span class="ActionScriptDefault_Text">FlxState</span>;
+        <span class="ActionScriptASDoc">/**
+         * A flag for keeping track of whether a game reset was requested or not.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_requestedReset</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+
+        <span class="ActionScriptASDoc">/**
+         * The "focus lost" screen (see &lt;code&gt;createFocusScreen()&lt;/code&gt;).
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_focus</span>:<span class="ActionScriptDefault_Text">Sprite</span>;
+        <span class="ActionScriptASDoc">/**
+         * The sound tray display container (see &lt;code&gt;createSoundTray()&lt;/code&gt;).
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_soundTray</span>:<span class="ActionScriptDefault_Text">Sprite</span>;
+        <span class="ActionScriptASDoc">/**
+         * Helps us auto-hide the sound tray after a volume change.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_soundTrayTimer</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Helps display the volume bars on the sound tray.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_soundTrayBars</span>:<span class="ActionScriptDefault_Text">Array</span>;
+        <span class="ActionScriptASDoc">/**
+         * The debugger overlay object.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_debugger</span>:<span class="ActionScriptDefault_Text">FlxDebugger</span>;
+        <span class="ActionScriptASDoc">/**
+         * A handy boolean that keeps track of whether the debugger exists and is currently visible.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_debuggerUp</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Container for a game replay object.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_replay</span>:<span class="ActionScriptDefault_Text">FlxReplay</span>;
+        <span class="ActionScriptASDoc">/**
+         * Flag for whether a playback of a recording was requested.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_replayRequested</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/**
+         * Flag for whether a new recording was requested.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_recordingRequested</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/**
+         * Flag for whether a replay is currently playing.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_replaying</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/**
+         * Flag for whether a new recording is being made.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_recording</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/**
+         * Array that keeps track of keypresses that can cancel a replay.
+         * Handy for skipping cutscenes or getting out of attract modes!
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_replayCancelKeys</span>:<span class="ActionScriptDefault_Text">Array</span>;
+        <span class="ActionScriptASDoc">/**
+         * Helps time out a replay if necessary.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_replayTimer</span>:<span class="ActionScriptDefault_Text">int</span>;
+        <span class="ActionScriptASDoc">/**
+         * This function, if set, is triggered when the callback stops playing.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_replayCallback</span>:<span class="ActionScriptDefault_Text">Function</span>;
+
+        <span class="ActionScriptASDoc">/**
+         * Instantiate a new game object.
+         * 
+         * @param    GameSizeX        The width of your game in game pixels, not necessarily final display pixels (see Zoom).
+         * @param    GameSizeY        The height of your game in game pixels, not necessarily final display pixels (see Zoom).
+         * @param    InitialState    The class name of the state you want to create and switch to first (e.g. MenuState).
+         * @param    Zoom            The default level of zoom for the game's cameras (e.g. 2 = all pixels are now drawn at 2x).  Default = 1.
+         * @param    GameFramerate    How frequently the game should update (default is 60 times per second).
+         * @param    FlashFramerate    Sets the actual display framerate for Flash player (default is 30 times per second).
+         * @param    UseSystemCursor    Whether to use the default OS mouse pointer, or to use custom flixel ones.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">FlxGame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">GameSizeX</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">GameSizeY</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">InitialState</span>:<span class="ActionScriptDefault_Text">Class</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Zoom</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">GameFramerate</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>60<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">FlashFramerate</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>30<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">UseSystemCursor</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">//super high priority init stuff (focus, mouse, etc)
+</span>            <span class="ActionScriptDefault_Text">_lostFocus</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">_focus</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Sprite</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_focus</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">_soundTray</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Sprite</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_mouse</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Sprite</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>
+            
+            <span class="ActionScriptComment">//basic display and update setup stuff
+</span>            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">init</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">GameSizeX</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">GameSizeY</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Zoom</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">framerate</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">GameFramerate</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flashFramerate</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlashFramerate</span>;
+            <span class="ActionScriptDefault_Text">_accumulator</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_step</span>;
+            <span class="ActionScriptDefault_Text">_total</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_state</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">useSoundHotKeys</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">useSystemCursor</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">UseSystemCursor</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">useSystemCursor</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ui</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Mouse</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">hide</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">forceDebugger</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">_debuggerUp</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            
+            <span class="ActionScriptComment">//replay data
+</span>            <span class="ActionScriptDefault_Text">_replay</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxReplay</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_replayRequested</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">_recordingRequested</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">_replaying</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">_recording</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            
+            <span class="ActionScriptComment">//then get ready to create the game object for real
+</span>            <span class="ActionScriptDefault_Text">_iState</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">InitialState</span>;
+            <span class="ActionScriptDefault_Text">_requestedState</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_requestedReset</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">_created</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">addEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ENTER_FRAME</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">create</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Makes the little volume tray slide out.
+         * 
+         * @param    Silent    Whether or not it should beep.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">showSoundTray</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Silent</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">Silent</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">play</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">SndBeep</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_soundTrayTimer</span> <span class="ActionScriptOperator">=</span> 1;
+            <span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">globalVolume</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Math</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">round</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">volume</span><span class="ActionScriptOperator">*</span>10<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mute</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">globalVolume</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptReserved">for</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0; <span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_soundTrayBars</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>; <span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">globalVolume</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">_soundTrayBars</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">alpha</span> <span class="ActionScriptOperator">=</span> 1;
+                <span class="ActionScriptReserved">else</span> <span class="ActionScriptDefault_Text">_soundTrayBars</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">alpha</span> <span class="ActionScriptOperator">=</span> 0.5;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/**
+         * Internal event handler for input and focus.
+         * 
+         * @param    FlashEvent    Flash keyboard event.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onKeyUp</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span>:<span class="ActionScriptDefault_Text">KeyboardEvent</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debuggerUp</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">watch</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">editing</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mobile</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debugger</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">keyCode</span> <span class="ActionScriptOperator">==</span> 192<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">keyCode</span> <span class="ActionScriptOperator">==</span> 220<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span>;
+                    <span class="ActionScriptDefault_Text">_debuggerUp</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ui</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Mouse</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">show</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">useSystemCursor</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ui</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Mouse</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">hide</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptComment">//_console.toggle();
+</span>                    <span class="ActionScriptReserved">return</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">useSoundHotKeys</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">c</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlashEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">keyCode</span>;
+                    <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">code</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">fromCharCode</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">charCode</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">switch</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">c</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptReserved">case</span> 48:
+                        <span class="ActionScriptReserved">case</span> 96:
+                            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mute</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mute</span>;
+                            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">volumeHandler</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                                <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">volumeHandler</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mute</span><span class="ActionScriptOperator">?</span>0:<span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">volume</span><span class="ActionScriptBracket/Brace">)</span>;
+                            <span class="ActionScriptDefault_Text">showSoundTray</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                            <span class="ActionScriptReserved">return</span>;
+                        <span class="ActionScriptReserved">case</span> 109:
+                        <span class="ActionScriptReserved">case</span> 189:
+                            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mute</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">volume</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">volume</span> <span class="ActionScriptOperator">-</span> 0.1;
+                            <span class="ActionScriptDefault_Text">showSoundTray</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                            <span class="ActionScriptReserved">return</span>;
+                        <span class="ActionScriptReserved">case</span> 107:
+                        <span class="ActionScriptReserved">case</span> 187:
+                            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mute</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">volume</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">volume</span> <span class="ActionScriptOperator">+</span> 0.1;
+                            <span class="ActionScriptDefault_Text">showSoundTray</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                            <span class="ActionScriptReserved">return</span>;
+                        <span class="ActionScriptReserved">default</span>:
+                            <span class="ActionScriptReserved">break</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replaying</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">keys</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">handleKeyUp</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal event handler for input and focus.
+         * 
+         * @param    FlashEvent    Flash keyboard event.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onKeyDown</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span>:<span class="ActionScriptDefault_Text">KeyboardEvent</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debuggerUp</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">watch</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">editing</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replaying</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replayCancelKeys</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debugger</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">keyCode</span> <span class="ActionScriptOperator">!=</span> 192<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">keyCode</span> <span class="ActionScriptOperator">!=</span> 220<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">cancel</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">replayCancelKey</span>:<span class="ActionScriptDefault_Text">String</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">l</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_replayCancelKeys</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+                <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">l</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">replayCancelKey</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_replayCancelKeys</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span><span class="ActionScriptBracket/Brace">]</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">replayCancelKey</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptString">"ANY"</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">keys</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getKeyCode</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">replayCancelKey</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">FlashEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">keyCode</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replayCallback</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptBracket/Brace">{</span>
+                            <span class="ActionScriptDefault_Text">_replayCallback</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                            <span class="ActionScriptDefault_Text">_replayCallback</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+                        <span class="ActionScriptBracket/Brace">}</span>
+                        <span class="ActionScriptReserved">else</span>
+                            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">stopReplay</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptReserved">break</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">keys</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">handleKeyDown</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal event handler for input and focus.
+         * 
+         * @param    FlashEvent    Flash mouse event.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onMouseDown</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span>:<span class="ActionScriptDefault_Text">MouseEvent</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debuggerUp</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">hasMouse</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptReserved">return</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">watch</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">editing</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">watch</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">submit</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replaying</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replayCancelKeys</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">replayCancelKey</span>:<span class="ActionScriptDefault_Text">String</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">l</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_replayCancelKeys</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+                <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">l</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">replayCancelKey</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_replayCancelKeys</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">String</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">replayCancelKey</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptString">"MOUSE"</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">replayCancelKey</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptString">"ANY"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replayCallback</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptBracket/Brace">{</span>
+                            <span class="ActionScriptDefault_Text">_replayCallback</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                            <span class="ActionScriptDefault_Text">_replayCallback</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+                        <span class="ActionScriptBracket/Brace">}</span>
+                        <span class="ActionScriptReserved">else</span>
+                            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">stopReplay</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptReserved">break</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mouse</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">handleMouseDown</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal event handler for input and focus.
+         * 
+         * @param    FlashEvent    Flash mouse event.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onMouseUp</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span>:<span class="ActionScriptDefault_Text">MouseEvent</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debuggerUp</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">hasMouse</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptDefault_Text">_replaying</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mouse</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">handleMouseUp</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal event handler for input and focus.
+         * 
+         * @param    FlashEvent    Flash mouse event.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onMouseWheel</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span>:<span class="ActionScriptDefault_Text">MouseEvent</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debuggerUp</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">hasMouse</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptDefault_Text">_replaying</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mouse</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">handleMouseWheel</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal event handler for input and focus.
+         * 
+         * @param    FlashEvent    Flash event.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onFocus</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span>:<span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">_debuggerUp</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">useSystemCursor</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ui</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Mouse</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">hide</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">resetInput</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_lostFocus</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_focus</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">frameRate</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_flashFramerate</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">resumeSounds</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal event handler for input and focus.
+         * 
+         * @param    FlashEvent    Flash event.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onFocusLost</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span>:<span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ui</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Mouse</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">show</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_lostFocus</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_focus</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">frameRate</span> <span class="ActionScriptOperator">=</span> 10;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">pauseSounds</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Handles the onEnterFrame call and figures out how many updates and draw calls to do.
+         * 
+         * @param    FlashEvent    Flash event.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onEnterFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span>:<span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mark</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getTimer</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">elapsedMS</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mark</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">_total</span>;
+            <span class="ActionScriptDefault_Text">_total</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mark</span>;
+            <span class="ActionScriptDefault_Text">updateSoundTray</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">elapsedMS</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">_lostFocus</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debugger</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vcr</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">paused</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vcr</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">stepRequested</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vcr</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">stepRequested</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                        <span class="ActionScriptDefault_Text">step</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_accumulator</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">elapsedMS</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_accumulator</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_maxAccumulation</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">_accumulator</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_maxAccumulation</span>;
+                    <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_accumulator</span> <span class="ActionScriptOperator">&gt;=</span> <span class="ActionScriptDefault_Text">_step</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">step</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">_accumulator</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_accumulator</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">_step</span>; 
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+                
+                <span class="ActionScriptDefault_Text">FlxBasic</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">_VISIBLECOUNT</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptDefault_Text">draw</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debuggerUp</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">perf</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">elapsedMS</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">perf</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visibleObjects</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxBasic</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">_VISIBLECOUNT</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">perf</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">watch</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/**
+         * If there is a state change requested during the update loop,
+         * this function handles actual destroying the old state and related processes,
+         * and calls creates on the new state and plugs it into the game object.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">switchState</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span> 
+            <span class="ActionScriptComment">//Basic reset stuff
+</span>            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">resetCameras</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">resetInput</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroySounds</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clearBitmapCache</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//Clear the debugger overlay's Watch window
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debugger</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">watch</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">removeAll</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//Clear any timers left in the timer manager
+</span>            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">timerManager</span>:<span class="ActionScriptDefault_Text">TimerManager</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxTimer</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">manager</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">timerManager</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">timerManager</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clear</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//Destroy the old state (if there is an old state)
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_state</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_state</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//Finally assign and create the new state
+</span>            <span class="ActionScriptDefault_Text">_state</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_requestedState</span>;
+            <span class="ActionScriptDefault_Text">_state</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">create</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * This is the main game update logic section.
+         * The onEnterFrame() handler is in charge of calling this
+         * the appropriate number of times each frame.
+         * This block handles state changes, replays, all that good stuff.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">step</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">//handle game reset request
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_requestedReset</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_requestedReset</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                <span class="ActionScriptDefault_Text">_requestedState</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">_iState</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_replayTimer</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptDefault_Text">_replayCancelKeys</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+                <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">reset</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//handle replay-related requests
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_recordingRequested</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_recordingRequested</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                <span class="ActionScriptDefault_Text">_replay</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">create</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">globalSeed</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_recording</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debugger</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vcr</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">recording</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">log</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"FLIXEL: starting new flixel gameplay record."</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replayRequested</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_replayRequested</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                <span class="ActionScriptDefault_Text">_replay</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rewind</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">globalSeed</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_replay</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">seed</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debugger</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vcr</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">playing</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_replaying</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//handle state switching requests
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_state</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptDefault_Text">_requestedState</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">switchState</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//finally actually step through the game physics
+</span>            <span class="ActionScriptDefault_Text">FlxBasic</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">_ACTIVECOUNT</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replaying</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_replay</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">playNextFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replayTimer</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_replayTimer</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">_step</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replayTimer</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replayCallback</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptBracket/Brace">{</span>
+                            <span class="ActionScriptDefault_Text">_replayCallback</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                            <span class="ActionScriptDefault_Text">_replayCallback</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+                        <span class="ActionScriptBracket/Brace">}</span>
+                        <span class="ActionScriptReserved">else</span>
+                            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">stopReplay</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replaying</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">_replay</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">finished</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">stopReplay</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_replayCallback</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">_replayCallback</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">_replayCallback</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debugger</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vcr</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">updateRuntime</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_step</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">updateInput</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_recording</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_replay</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">recordFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debugger</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vcr</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">updateRuntime</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_step</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mouse</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">wheel</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debuggerUp</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">perf</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">activeObjects</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxBasic</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">_ACTIVECOUNT</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/**
+         * This function just updates the soundtray object.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">updateSoundTray</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">MS</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">//animate stupid sound tray thing
+</span>            
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_soundTray</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_soundTrayTimer</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">_soundTrayTimer</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">MS</span><span class="ActionScriptOperator">/</span>1000;
+                <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">MS</span><span class="ActionScriptOperator">/</span>1000<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">*</span>2;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&lt;=</span> <span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                        
+                        <span class="ActionScriptComment">//Save sound preferences
+</span>                        <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">soundPrefs</span>:<span class="ActionScriptDefault_Text">FlxSave</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxSave</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">soundPrefs</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bind</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"flixel"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptBracket/Brace">{</span>
+                            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">soundPrefs</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">sound</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                                <span class="ActionScriptDefault_Text">soundPrefs</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">sound</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Object</span>;
+                            <span class="ActionScriptDefault_Text">soundPrefs</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">sound</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mute</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mute</span>;
+                            <span class="ActionScriptDefault_Text">soundPrefs</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">sound</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">volume</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">volume</span>;
+                            <span class="ActionScriptDefault_Text">soundPrefs</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">close</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptBracket/Brace">}</span>
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * This function is called by step() and updates the actual game state.
+         * May be called multiple times per "frame" or draw call.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mark</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getTimer</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">elapsed</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">timeScale</span><span class="ActionScriptOperator">*</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_step</span><span class="ActionScriptOperator">/</span>1000<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">updateSounds</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">updatePlugins</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_state</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">updateCameras</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debuggerUp</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">perf</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixelUpdate</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">getTimer</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">mark</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Goes through the game state and draws all the game objects and special effects.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">draw</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mark</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getTimer</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lockCameras</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_state</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">draw</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">drawPlugins</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">unlockCameras</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debuggerUp</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">perf</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixelDraw</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">getTimer</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">mark</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Used to instantiate the guts of the flixel game object once we have a valid reference to the root.
+         * 
+         * @param    FlashEvent    Just a Flash system event, not too important for our purposes.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">create</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlashEvent</span>:<span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">root</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptDefault_Text">removeEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ENTER_FRAME</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">create</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_total</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getTimer</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//Set up the view window and double buffering
+</span>            <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleMode</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">StageScaleMode</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">NO_SCALE</span>;
+            <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">align</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">StageAlign</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">TOP_LEFT</span>;
+            <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">frameRate</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_flashFramerate</span>;
+            
+            <span class="ActionScriptComment">//Add basic input event listeners and mouse container
+</span>            <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">MouseEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">MOUSE_DOWN</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">onMouseDown</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">MouseEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">MOUSE_UP</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">onMouseUp</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">MouseEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">MOUSE_WHEEL</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">onMouseWheel</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">KeyboardEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">KEY_DOWN</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">onKeyDown</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">KeyboardEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">KEY_UP</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">onKeyUp</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">addChild</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_mouse</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//Let mobile devs opt out of unnecessary overlays.
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mobile</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptComment">//Debugger overlay
+</span>                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">debug</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptDefault_Text">forceDebugger</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_debugger</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxDebugger</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">FlxCamera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">defaultZoom</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">FlxCamera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">defaultZoom</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">addChild</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_debugger</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                
+                <span class="ActionScriptComment">//Volume display tab
+</span>                <span class="ActionScriptDefault_Text">createSoundTray</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                
+                <span class="ActionScriptComment">//Focus gained/lost monitoring
+</span>                <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">DEACTIVATE</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">onFocusLost</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ACTIVATE</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">onFocus</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">createFocusScreen</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//Finally, set up an event for the actual game loop stuff.
+</span>            <span class="ActionScriptDefault_Text">addEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ENTER_FRAME</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">onEnterFrame</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Sets up the "sound tray", the little volume meter that pops down sometimes.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">createSoundTray</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleX</span> <span class="ActionScriptOperator">=</span> 2;
+            <span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleY</span> <span class="ActionScriptOperator">=</span> 2;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">tmp</span>:<span class="ActionScriptDefault_Text">Bitmap</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Bitmap</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">BitmapData</span><span class="ActionScriptBracket/Brace">(</span>80<span class="ActionScriptOperator">,</span>30<span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span>0x7F000000<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">/</span>2<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">FlxCamera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">defaultZoom</span><span class="ActionScriptOperator">-</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">tmp</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">/</span>2<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleX</span>;
+            <span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addChild</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">tmp</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">text</span>:<span class="ActionScriptDefault_Text">TextField</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">TextField</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">tmp</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">tmp</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+            <span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">multiline</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">wordWrap</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">selectable</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">embedFonts</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">antiAliasType</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">AntiAliasType</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">NORMAL</span>;
+            <span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">gridFitType</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">GridFitType</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">PIXEL</span>;
+            <span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">defaultTextFormat</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">TextFormat</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"system"</span><span class="ActionScriptOperator">,</span>8<span class="ActionScriptOperator">,</span>0xffffff<span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptString">"center"</span><span class="ActionScriptBracket/Brace">)</span>;;
+            <span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addChild</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">text</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">text</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"VOLUME"</span>;
+            <span class="ActionScriptDefault_Text">text</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> 16;
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">bx</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 10;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">by</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 14;
+            <span class="ActionScriptDefault_Text">_soundTrayBars</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> 10<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">tmp</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Bitmap</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">BitmapData</span><span class="ActionScriptBracket/Brace">(</span>4<span class="ActionScriptOperator">,</span><span class="ActionScriptOperator">++</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span>0xffffff<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">tmp</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">bx</span>;
+                <span class="ActionScriptDefault_Text">tmp</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">by</span>;
+                <span class="ActionScriptDefault_Text">_soundTrayBars</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">push</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addChild</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">tmp</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">bx</span> <span class="ActionScriptOperator">+=</span> 6;
+                <span class="ActionScriptDefault_Text">by</span><span class="ActionScriptOperator">--</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+            <span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">addChild</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_soundTray</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//load saved sound preferences for this game if they exist
+</span>            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">soundPrefs</span>:<span class="ActionScriptDefault_Text">FlxSave</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxSave</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">soundPrefs</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bind</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"flixel"</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">soundPrefs</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">sound</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">soundPrefs</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">sound</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">volume</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">volume</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">soundPrefs</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">sound</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">volume</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">soundPrefs</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">sound</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mute</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mute</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">soundPrefs</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">sound</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mute</span>;
+                <span class="ActionScriptDefault_Text">soundPrefs</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Sets up the darkened overlay with the big white "play" button that appears when a flixel game loses focus.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">createFocusScreen</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">gfx</span>:<span class="ActionScriptDefault_Text">Graphics</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_focus</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">graphics</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">screenWidth</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">FlxCamera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">defaultZoom</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">screenHeight</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">FlxCamera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">defaultZoom</span>;
+            
+            <span class="ActionScriptComment">//draw transparent black backdrop
+</span>            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">moveTo</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span>0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">beginFill</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span>0.5<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lineTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">screenWidth</span><span class="ActionScriptOperator">,</span>0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lineTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">screenWidth</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">screenHeight</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lineTo</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">screenHeight</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lineTo</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span>0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">endFill</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//draw white arrow
+</span>            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">halfWidth</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">screenWidth</span><span class="ActionScriptOperator">/</span>2;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">halfHeight</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">screenHeight</span><span class="ActionScriptOperator">/</span>2;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">helper</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxU</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">min</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">halfWidth</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">halfHeight</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">/</span>3;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">moveTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">halfWidth</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">halfHeight</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">beginFill</span><span class="ActionScriptBracket/Brace">(</span>0xffffff<span class="ActionScriptOperator">,</span>0.65<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lineTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">halfWidth</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">halfHeight</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lineTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">halfWidth</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">halfHeight</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lineTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">halfWidth</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">halfHeight</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">endFill</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">logo</span>:<span class="ActionScriptDefault_Text">Bitmap</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">ImgLogo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">logo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleX</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptOperator">/</span>10<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">logo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleX</span> <span class="ActionScriptOperator">&lt;</span> 1<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">logo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleX</span> <span class="ActionScriptOperator">=</span> 1;
+            <span class="ActionScriptDefault_Text">logo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleY</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">logo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleX</span>;
+            <span class="ActionScriptDefault_Text">logo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">logo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleX</span>;
+            <span class="ActionScriptDefault_Text">logo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">alpha</span> <span class="ActionScriptOperator">=</span> 0.35;
+            <span class="ActionScriptDefault_Text">_focus</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addChild</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">logo</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptDefault_Text">addChild</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_focus</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span>
+</pre></body>
+</html>

@@ -1,0 +1,290 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FlxPath.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Graphics</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">plugin</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">DebugPathDisplay</span>;
+    
+    <span class="ActionScriptASDoc">/**
+     * This is a simple path data container.  Basically a list of points that
+     * a &lt;code&gt;FlxObject&lt;/code&gt; can follow.  Also has code for drawing debug visuals.
+     * &lt;code&gt;FlxTilemap.findPath()&lt;/code&gt; returns a path object, but you can
+     * also just make your own, using the &lt;code&gt;add()&lt;/code&gt; functions below
+     * or by creating your own array of points.
+     * 
+     * @author    Adam Atomic
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">FlxPath</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/**
+         * The list of &lt;code&gt;FlxPoint&lt;/code&gt;s that make up the path data.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">nodes</span>:<span class="ActionScriptDefault_Text">Array</span>;
+        <span class="ActionScriptASDoc">/**
+         * Specify a debug display color for the path.  Default is white.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">debugColor</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Specify a debug display scroll factor for the path.  Default is (1,1).
+         * NOTE: does not affect world movement!  Object scroll factors take care of that.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">debugScrollFactor</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Setting this to true will prevent the object from appearing
+         * when the visual debug mode in the debugger overlay is toggled on.
+         * @default false
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">ignoreDrawDebug</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+
+        <span class="ActionScriptASDoc">/**
+         * Internal helper for keeping new variable instantiations under control.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_point</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Instantiate a new path object.
+         * 
+         * @param    Nodes    Optional, can specify all the points for the path up front if you want.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">FlxPath</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Nodes</span>:<span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Nodes</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">nodes</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">nodes</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Nodes</span>;
+            <span class="ActionScriptDefault_Text">_point</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">debugScrollFactor</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span>1.0<span class="ActionScriptOperator">,</span>1.0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">debugColor</span> <span class="ActionScriptOperator">=</span> 0xffffff;
+            <span class="ActionScriptDefault_Text">ignoreDrawDebug</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">debugPathDisplay</span>:<span class="ActionScriptDefault_Text">DebugPathDisplay</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">manager</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">debugPathDisplay</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">debugPathDisplay</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">add</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Clean up memory.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">debugPathDisplay</span>:<span class="ActionScriptDefault_Text">DebugPathDisplay</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">manager</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">debugPathDisplay</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">debugPathDisplay</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">remove</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptDefault_Text">debugScrollFactor</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_point</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">nodes</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Add a new node to the end of the path at the specified location.
+         * 
+         * @param    X    X position of the new path point in world coordinates.
+         * @param    Y    Y position of the new path point in world coordinates.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">add</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Y</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">push</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Y</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Add a new node to the path at the specified location and index within the path.
+         * 
+         * @param    X        X position of the new path point in world coordinates.
+         * @param    Y        Y position of the new path point in world coordinates.
+         * @param    Index    Where within the list of path nodes to insert this new point.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">addAt</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Y</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Index</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Index</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Index</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+            <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">splice</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Index</span><span class="ActionScriptOperator">,</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Y</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Sometimes its easier or faster to just pass a point object instead of separate X and Y coordinates.
+         * This also gives you the option of not creating a new node but actually adding that specific
+         * &lt;code&gt;FlxPoint&lt;/code&gt; object to the path.  This allows you to do neat things, like dynamic paths.
+         * 
+         * @param    Node            The point in world coordinates you want to add to the path.
+         * @param    AsReference        Whether to add the point as a reference, or to create a new point with the specified values.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">addPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Node</span>:<span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">AsReference</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">AsReference</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">push</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Node</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">push</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Node</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Node</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Sometimes its easier or faster to just pass a point object instead of separate X and Y coordinates.
+         * This also gives you the option of not creating a new node but actually adding that specific
+         * &lt;code&gt;FlxPoint&lt;/code&gt; object to the path.  This allows you to do neat things, like dynamic paths.
+         * 
+         * @param    Node            The point in world coordinates you want to add to the path.
+         * @param    Index            Where within the list of path nodes to insert this new point.
+         * @param    AsReference        Whether to add the point as a reference, or to create a new point with the specified values.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">addPointAt</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Node</span>:<span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Index</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">AsReference</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Index</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Index</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">AsReference</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">splice</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Index</span><span class="ActionScriptOperator">,</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Node</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">splice</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Index</span><span class="ActionScriptOperator">,</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Node</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Node</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Remove a node from the path.
+         * NOTE: only works with points added by reference or with references from &lt;code&gt;nodes&lt;/code&gt; itself!
+         * 
+         * @param    Node    The point object you want to remove from the path.
+         * 
+         * @return    The node that was excised.  Returns null if the node was not found.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">remove</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Node</span>:<span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">index</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">indexOf</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Node</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">index</span> <span class="ActionScriptOperator">&gt;=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">splice</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">index</span><span class="ActionScriptOperator">,</span>1<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">[</span>0<span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Remove a node from the path using the specified position in the list of path nodes.
+         * 
+         * @param    Index    Where within the list of path nodes you want to remove a node.
+         * 
+         * @return    The node that was excised.  Returns null if there were no nodes in the path.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">removeAt</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Index</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Index</span> <span class="ActionScriptOperator">&gt;=</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Index</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span><span class="ActionScriptOperator">-</span>1;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">splice</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Index</span><span class="ActionScriptOperator">,</span>1<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">[</span>0<span class="ActionScriptBracket/Brace">]</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Get the first node in the list.
+         * 
+         * @return    The first node in the path.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">head</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptBracket/Brace">[</span>0<span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Get the last node in the list.
+         * 
+         * @return    The last node in the path.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">tail</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span><span class="ActionScriptOperator">-</span>1<span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * While this doesn't override &lt;code&gt;FlxBasic.drawDebug()&lt;/code&gt;, the behavior is very similar.
+         * Based on this path data, it draws a simple lines-and-boxes representation of the path
+         * if the visual debug mode was toggled in the debugger overlay.  You can use &lt;code&gt;debugColor&lt;/code&gt;
+         * and &lt;code&gt;debugScrollFactor&lt;/code&gt; to control the path's appearance.
+         * 
+         * @param    Camera        The camera object the path will draw to.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">drawDebug</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span>:<span class="ActionScriptDefault_Text">FlxCamera</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Camera</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">camera</span>;
+            
+            <span class="ActionScriptComment">//Set up our global flash graphics object to draw out the path
+</span>            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">gfx</span>:<span class="ActionScriptDefault_Text">Graphics</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flashGfx</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clear</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//Then fill up the object with node and path graphics
+</span>            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">node</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">nextNode</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">l</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+            <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">l</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptComment">//get a reference to the current node
+</span>                <span class="ActionScriptDefault_Text">node</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">FlxPoint</span>;
+                
+                <span class="ActionScriptComment">//find the screen position of the node on this camera
+</span>                <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">node</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">debugScrollFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">)</span>; <span class="ActionScriptComment">//copied from getScreenXY()
+</span>                <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">node</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">debugScrollFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span>0.0000001:<span class="ActionScriptOperator">-</span>0.0000001<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span>0.0000001:<span class="ActionScriptOperator">-</span>0.0000001<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+                
+                <span class="ActionScriptComment">//decide what color this node should be
+</span>                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">nodeSize</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 2;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">l</span><span class="ActionScriptOperator">-</span>1<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">nodeSize</span> <span class="ActionScriptOperator">*=</span> 2;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">nodeColor</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">debugColor</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">l</span> <span class="ActionScriptOperator">&gt;</span> 1<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">nodeColor</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">GREEN</span>;
+                    <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">l</span><span class="ActionScriptOperator">-</span>1<span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">nodeColor</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">RED</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                
+                <span class="ActionScriptComment">//draw a box for the node
+</span>                <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">beginFill</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">nodeColor</span><span class="ActionScriptOperator">,</span>0.5<span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lineStyle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">drawRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">nodeSize</span><span class="ActionScriptOperator">*</span>0.5<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">nodeSize</span><span class="ActionScriptOperator">*</span>0.5<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">nodeSize</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">nodeSize</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">endFill</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+
+                <span class="ActionScriptComment">//then find the next node in the path
+</span>                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">linealpha</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> 0.3;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">l</span><span class="ActionScriptOperator">-</span>1<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">nextNode</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">+</span>1<span class="ActionScriptBracket/Brace">]</span>;
+                <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">nextNode</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">nodes</span><span class="ActionScriptBracket/Brace">[</span>0<span class="ActionScriptBracket/Brace">]</span>;
+                    <span class="ActionScriptDefault_Text">linealpha</span> <span class="ActionScriptOperator">=</span> 0.15;
+                <span class="ActionScriptBracket/Brace">}</span>
+                
+                <span class="ActionScriptComment">//then draw a line to the next node
+</span>                <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">moveTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lineStyle</span><span class="ActionScriptBracket/Brace">(</span>1<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">debugColor</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">linealpha</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">nextNode</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">debugScrollFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">)</span>; <span class="ActionScriptComment">//copied from getScreenXY()
+</span>                <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">nextNode</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">debugScrollFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span>0.0000001:<span class="ActionScriptOperator">-</span>0.0000001<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span>0.0000001:<span class="ActionScriptOperator">-</span>0.0000001<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lineTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>;
+
+                <span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//then stamp the path down onto the game buffer
+</span>            <span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">buffer</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">draw</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flashGfxSprite</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">manager</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">DebugPathDisplay</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getPlugin</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">DebugPathDisplay</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">DebugPathDisplay</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

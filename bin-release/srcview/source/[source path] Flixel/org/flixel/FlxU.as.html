@@ -1,0 +1,633 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FlxU.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">net</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">URLRequest</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">net</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">navigateToURL</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getDefinitionByName</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getQualifiedClassName</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getTimer</span>;
+    
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">FlxU</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/**
+         * Opens a web page in a new tab or window.
+         * MUST be called from the UI thread or else badness.
+         * 
+         * @param    URL        The address of the web page.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">openURL</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">URL</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">navigateToURL</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">URLRequest</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">URL</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptString">"_blank"</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Calculate the absolute value of a number.
+         * 
+         * @param    Value    Any number.
+         * 
+         * @return    The absolute value of that number.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">abs</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span><span class="ActionScriptOperator">&gt;</span>0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">Value</span>:<span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">Value</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Round down to the next whole number. E.g. floor(1.7) == 1, and floor(-2.7) == -2.
+         * 
+         * @param    Value    Any number.
+         * 
+         * @return    The rounded value of that number.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">floor</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">number</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span><span class="ActionScriptOperator">&gt;</span>0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">number</span><span class="ActionScriptOperator">!=</span><span class="ActionScriptDefault_Text">Value</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">number</span><span class="ActionScriptOperator">-</span>1<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">number</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Round up to the next whole number.  E.g. ceil(1.3) == 2, and ceil(-2.3) == -3.
+         * 
+         * @param    Value    Any number.
+         * 
+         * @return    The rounded value of that number.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">ceil</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">number</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span><span class="ActionScriptOperator">&gt;</span>0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">number</span><span class="ActionScriptOperator">!=</span><span class="ActionScriptDefault_Text">Value</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">number</span><span class="ActionScriptOperator">+</span>1<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">number</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">number</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Round to the closest whole number. E.g. round(1.7) == 2, and round(-2.3) == -2.
+         * 
+         * @param    Value    Any number.
+         * 
+         * @return    The rounded value of that number.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">round</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">number</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span><span class="ActionScriptOperator">+</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span><span class="ActionScriptOperator">&gt;</span>0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span>0.5:<span class="ActionScriptOperator">-</span>0.5<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span><span class="ActionScriptOperator">&gt;</span>0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">number</span><span class="ActionScriptOperator">!=</span><span class="ActionScriptDefault_Text">Value</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">number</span><span class="ActionScriptOperator">-</span>1<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">number</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Figure out which number is smaller.
+         * 
+         * @param    Number1        Any number.
+         * @param    Number2        Any number.
+         * 
+         * @return    The smaller of the two numbers.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">min</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Number1</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Number2</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Number1</span> <span class="ActionScriptOperator">&lt;=</span> <span class="ActionScriptDefault_Text">Number2</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">Number1</span>:<span class="ActionScriptDefault_Text">Number2</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Figure out which number is larger.
+         * 
+         * @param    Number1        Any number.
+         * @param    Number2        Any number.
+         * 
+         * @return    The larger of the two numbers.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">max</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Number1</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Number2</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Number1</span> <span class="ActionScriptOperator">&gt;=</span> <span class="ActionScriptDefault_Text">Number2</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">Number1</span>:<span class="ActionScriptDefault_Text">Number2</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Bound a number by a minimum and maximum.
+         * Ensures that this number is no smaller than the minimum,
+         * and no larger than the maximum.
+         * 
+         * @param    Value    Any number.
+         * @param    Min        Any number.
+         * @param    Max        Any number.
+         * 
+         * @return    The bounded value of the number.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">bound</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Min</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Max</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">lowerBound</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Value</span><span class="ActionScriptOperator">&lt;</span><span class="ActionScriptDefault_Text">Min</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">Min</span>:<span class="ActionScriptDefault_Text">Value</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">lowerBound</span><span class="ActionScriptOperator">&gt;</span><span class="ActionScriptDefault_Text">Max</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">Max</span>:<span class="ActionScriptDefault_Text">lowerBound</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Generates a random number based on the seed provided.
+         * 
+         * @param    Seed    A number between 0 and 1, used to generate a predictable random number (very optional).
+         * 
+         * @return    A &lt;code&gt;Number&lt;/code&gt; between 0 and 1.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">srand</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Seed</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span>69621 <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Seed</span> <span class="ActionScriptOperator">*</span> 0x7FFFFFFF<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">%</span> 0x7FFFFFFF<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> 0x7FFFFFFF;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Shuffles the entries in an array into a new random order.
+         * &lt;code&gt;FlxG.shuffle()&lt;/code&gt; is deterministic and safe for use with replays/recordings.
+         * HOWEVER, &lt;code&gt;FlxU.shuffle()&lt;/code&gt; is NOT deterministic and unsafe for use with replays/recordings.
+         * 
+         * @param    A                A Flash &lt;code&gt;Array&lt;/code&gt; object containing...stuff.
+         * @param    HowManyTimes    How many swaps to perform during the shuffle operation.  Good rule of thumb is 2-4 times as many objects are in the list.
+         * 
+         * @return    The same Flash &lt;code&gt;Array&lt;/code&gt; object that you passed in in the first place.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">shuffle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Objects</span>:<span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">HowManyTimes</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Array</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">index1</span>:<span class="ActionScriptDefault_Text">uint</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">index2</span>:<span class="ActionScriptDefault_Text">uint</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">object</span>:<span class="ActionScriptDefault_Text">Object</span>;
+            <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">HowManyTimes</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">index1</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Math</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">Objects</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+                <span class="ActionScriptDefault_Text">index2</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Math</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">Objects</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+                <span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Objects</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">index2</span><span class="ActionScriptBracket/Brace">]</span>;
+                <span class="ActionScriptDefault_Text">Objects</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">index2</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Objects</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">index1</span><span class="ActionScriptBracket/Brace">]</span>;
+                <span class="ActionScriptDefault_Text">Objects</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">index1</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">object</span>;
+                <span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">Objects</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Fetch a random entry from the given array.
+         * Will return null if random selection is missing, or array has no entries.
+         * &lt;code&gt;FlxG.getRandom()&lt;/code&gt; is deterministic and safe for use with replays/recordings.
+         * HOWEVER, &lt;code&gt;FlxU.getRandom()&lt;/code&gt; is NOT deterministic and unsafe for use with replays/recordings.
+         * 
+         * @param    Objects        A Flash array of objects.
+         * @param    StartIndex    Optional offset off the front of the array. Default value is 0, or the beginning of the array.
+         * @param    Length        Optional restriction on the number of values you want to randomly select from.
+         * 
+         * @return    The random object that was selected.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getRandom</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Objects</span>:<span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">StartIndex</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Length</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Object</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Objects</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">l</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Length</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">l</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">l</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">Objects</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">StartIndex</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">l</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Objects</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">StartIndex</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">l</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">Objects</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">StartIndex</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Math</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">l</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Just grabs the current "ticks" or time in milliseconds that has passed since Flash Player started up.
+         * Useful for finding out how long it takes to execute specific blocks of code.
+         * 
+         * @return    A &lt;code&gt;uint&lt;/code&gt; to be passed to &lt;code&gt;FlxU.endProfile()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getTicks</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">uint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">getTimer</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Takes two "ticks" timestamps and formats them into the number of seconds that passed as a String.
+         * Useful for logging, debugging, the watch window, or whatever else.
+         * 
+         * @param    StartTicks    The first timestamp from the system.
+         * @param    EndTicks    The second timestamp from the system.
+         * 
+         * @return    A &lt;code&gt;String&lt;/code&gt; containing the formatted time elapsed information.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">formatTicks</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">StartTicks</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">EndTicks</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">String</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">EndTicks</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">StartTicks</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">/</span>1000<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">+</span><span class="ActionScriptString">"s"</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Generate a Flash &lt;code&gt;uint&lt;/code&gt; color from RGBA components.
+         * 
+         * @param   Red     The red component, between 0 and 255.
+         * @param   Green   The green component, between 0 and 255.
+         * @param   Blue    The blue component, between 0 and 255.
+         * @param   Alpha   How opaque the color should be, either between 0 and 1 or 0 and 255.
+         * 
+         * @return  The color as a &lt;code&gt;uint&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">makeColor</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Red</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Green</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Blue</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Alpha</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1.0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">uint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Alpha</span><span class="ActionScriptOperator">&gt;</span>1<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">Alpha</span>:<span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Alpha</span> <span class="ActionScriptOperator">*</span> 255<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;</span> 0xFF<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&lt;&lt;</span> 24 <span class="ActionScriptOperator">|</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Red</span> <span class="ActionScriptOperator">&amp;</span> 0xFF<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&lt;&lt;</span> 16 <span class="ActionScriptOperator">|</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Green</span> <span class="ActionScriptOperator">&amp;</span> 0xFF<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&lt;&lt;</span> 8 <span class="ActionScriptOperator">|</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Blue</span> <span class="ActionScriptOperator">&amp;</span> 0xFF<span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/**
+         * Generate a Flash &lt;code&gt;uint&lt;/code&gt; color from HSB components.
+         * 
+         * @param    Hue            A number between 0 and 360, indicating position on a color strip or wheel.
+         * @param    Saturation    A number between 0 and 1, indicating how colorful or gray the color should be.  0 is gray, 1 is vibrant.
+         * @param    Brightness    A number between 0 and 1, indicating how bright the color should be.  0 is black, 1 is full bright.
+         * @param   Alpha       How opaque the color should be, either between 0 and 1 or 0 and 255.
+         * 
+         * @return    The color as a &lt;code&gt;uint&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">makeColorFromHSB</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Hue</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Saturation</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Brightness</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Alpha</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1.0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">uint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">red</span>:<span class="ActionScriptDefault_Text">Number</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">green</span>:<span class="ActionScriptDefault_Text">Number</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">blue</span>:<span class="ActionScriptDefault_Text">Number</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Saturation</span> <span class="ActionScriptOperator">==</span> 0.0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">red</span>   <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Brightness</span>;
+                <span class="ActionScriptDefault_Text">green</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Brightness</span>;        
+                <span class="ActionScriptDefault_Text">blue</span>  <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Brightness</span>;
+            <span class="ActionScriptBracket/Brace">}</span>       
+            <span class="ActionScriptReserved">else</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Hue</span> <span class="ActionScriptOperator">==</span> 360<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">Hue</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">slice</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Hue</span><span class="ActionScriptOperator">/</span>60;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">hf</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Hue</span><span class="ActionScriptOperator">/</span>60 <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">slice</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">aa</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Brightness</span><span class="ActionScriptOperator">*</span><span class="ActionScriptBracket/Brace">(</span>1 <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">Saturation</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">bb</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Brightness</span><span class="ActionScriptOperator">*</span><span class="ActionScriptBracket/Brace">(</span>1 <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">Saturation</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">hf</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">cc</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Brightness</span><span class="ActionScriptOperator">*</span><span class="ActionScriptBracket/Brace">(</span>1 <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">Saturation</span><span class="ActionScriptOperator">*</span><span class="ActionScriptBracket/Brace">(</span>1.0 <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">hf</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">switch</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">slice</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">case</span> 0: <span class="ActionScriptDefault_Text">red</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Brightness</span>; <span class="ActionScriptDefault_Text">green</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">cc</span>;   <span class="ActionScriptDefault_Text">blue</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">aa</span>;  <span class="ActionScriptReserved">break</span>;
+                    <span class="ActionScriptReserved">case</span> 1: <span class="ActionScriptDefault_Text">red</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">bb</span>;  <span class="ActionScriptDefault_Text">green</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Brightness</span>;  <span class="ActionScriptDefault_Text">blue</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">aa</span>;  <span class="ActionScriptReserved">break</span>;
+                    <span class="ActionScriptReserved">case</span> 2: <span class="ActionScriptDefault_Text">red</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">aa</span>;  <span class="ActionScriptDefault_Text">green</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Brightness</span>;  <span class="ActionScriptDefault_Text">blue</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">cc</span>;  <span class="ActionScriptReserved">break</span>;
+                    <span class="ActionScriptReserved">case</span> 3: <span class="ActionScriptDefault_Text">red</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">aa</span>;  <span class="ActionScriptDefault_Text">green</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">bb</span>;   <span class="ActionScriptDefault_Text">blue</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Brightness</span>; <span class="ActionScriptReserved">break</span>;
+                    <span class="ActionScriptReserved">case</span> 4: <span class="ActionScriptDefault_Text">red</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">cc</span>;  <span class="ActionScriptDefault_Text">green</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">aa</span>;   <span class="ActionScriptDefault_Text">blue</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Brightness</span>; <span class="ActionScriptReserved">break</span>;
+                    <span class="ActionScriptReserved">case</span> 5: <span class="ActionScriptDefault_Text">red</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Brightness</span>; <span class="ActionScriptDefault_Text">green</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">aa</span>;   <span class="ActionScriptDefault_Text">blue</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">bb</span>;  <span class="ActionScriptReserved">break</span>;
+                    <span class="ActionScriptReserved">default</span>: <span class="ActionScriptDefault_Text">red</span> <span class="ActionScriptOperator">=</span> 0;  <span class="ActionScriptDefault_Text">green</span> <span class="ActionScriptOperator">=</span> 0;    <span class="ActionScriptDefault_Text">blue</span> <span class="ActionScriptOperator">=</span> 0;   <span class="ActionScriptReserved">break</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Alpha</span><span class="ActionScriptOperator">&gt;</span>1<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">Alpha</span>:<span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Alpha</span> <span class="ActionScriptOperator">*</span> 255<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;</span> 0xFF<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&lt;&lt;</span> 24 <span class="ActionScriptOperator">|</span> <span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">red</span><span class="ActionScriptOperator">*</span>255<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&lt;&lt;</span> 16 <span class="ActionScriptOperator">|</span> <span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">green</span><span class="ActionScriptOperator">*</span>255<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&lt;&lt;</span> 8 <span class="ActionScriptOperator">|</span> <span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">blue</span><span class="ActionScriptOperator">*</span>255<span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Loads an array with the RGBA values of a Flash &lt;code&gt;uint&lt;/code&gt; color.
+         * RGB values are stored 0-255.  Alpha is stored as a floating point number between 0 and 1.
+         * 
+         * @param    Color    The color you want to break into components.
+         * @param    Results    An optional parameter, allows you to use an array that already exists in memory to store the result.
+         * 
+         * @return    An &lt;code&gt;Array&lt;/code&gt; object containing the Red, Green, Blue and Alpha values of the given color.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getRGBA</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Results</span>:<span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Array</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Results</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Results</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>0<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span> <span class="ActionScriptOperator">&gt;&gt;</span> 16<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;</span> 0xFF;
+            <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>1<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span> <span class="ActionScriptOperator">&gt;&gt;</span> 8<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;</span> 0xFF;
+            <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>2<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Color</span> <span class="ActionScriptOperator">&amp;</span> 0xFF;
+            <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>3<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span> <span class="ActionScriptOperator">&gt;&gt;</span> 24<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;</span> 0xFF<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> 255;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">Results</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Loads an array with the HSB values of a Flash &lt;code&gt;uint&lt;/code&gt; color.
+         * Hue is a value between 0 and 360.  Saturation, Brightness and Alpha
+         * are as floating point numbers between 0 and 1.
+         * 
+         * @param    Color    The color you want to break into components.
+         * @param    Results    An optional parameter, allows you to use an array that already exists in memory to store the result.
+         * 
+         * @return    An &lt;code&gt;Array&lt;/code&gt; object containing the Red, Green, Blue and Alpha values of the given color.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getHSB</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Results</span>:<span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Array</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Results</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Results</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">red</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span> <span class="ActionScriptOperator">&gt;&gt;</span> 16<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;</span> 0xFF<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> 255;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">green</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span> <span class="ActionScriptOperator">&gt;&gt;</span> 8<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;</span> 0xFF<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> 255;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">blue</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;</span> 0xFF<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> 255;
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">m</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">red</span><span class="ActionScriptOperator">&gt;</span><span class="ActionScriptDefault_Text">green</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">red</span>:<span class="ActionScriptDefault_Text">green</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">dmax</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">m</span><span class="ActionScriptOperator">&gt;</span><span class="ActionScriptDefault_Text">blue</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">m</span>:<span class="ActionScriptDefault_Text">blue</span>;
+            <span class="ActionScriptDefault_Text">m</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">red</span><span class="ActionScriptOperator">&gt;</span><span class="ActionScriptDefault_Text">green</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">green</span>:<span class="ActionScriptDefault_Text">red</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">dmin</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">m</span><span class="ActionScriptOperator">&gt;</span><span class="ActionScriptDefault_Text">blue</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">blue</span>:<span class="ActionScriptDefault_Text">m</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">range</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">dmax</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">dmin</span>;
+            
+            <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>2<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">dmax</span>;
+            <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>1<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>0<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> 0;
+            
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">dmax</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>1<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">range</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">dmax</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>1<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span> 
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">red</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">dmax</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>0<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">green</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">blue</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">range</span>;
+                <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">green</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">dmax</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>0<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> 2 <span class="ActionScriptOperator">+</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">blue</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">red</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">range</span>;
+                <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">blue</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">dmax</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>0<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> 4 <span class="ActionScriptOperator">+</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">red</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">green</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">range</span>;
+                <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>0<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">*=</span> 60;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>0<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>0<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">+=</span> 360;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptDefault_Text">Results</span><span class="ActionScriptBracket/Brace">[</span>3<span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span> <span class="ActionScriptOperator">&gt;&gt;</span> 24<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;</span> 0xFF<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> 255;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">Results</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Format seconds as minutes with a colon, an optionally with milliseconds too.
+         * 
+         * @param    Seconds        The number of seconds (for example, time remaining, time spent, etc).
+         * @param    ShowMS        Whether to show milliseconds after a "." as well.  Default value is false.
+         * 
+         * @return    A nicely formatted &lt;code&gt;String&lt;/code&gt;, like "1:03".
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">formatTime</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Seconds</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">ShowMS</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">String</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">timeString</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Seconds</span><span class="ActionScriptOperator">/</span>60<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptString">":"</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">timeStringHelper</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Seconds</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">%</span>60;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">timeStringHelper</span> <span class="ActionScriptOperator">&lt;</span> 10<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">timeString</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptString">"0"</span>;
+            <span class="ActionScriptDefault_Text">timeString</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">timeStringHelper</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ShowMS</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">timeString</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptString">"."</span>;
+                <span class="ActionScriptDefault_Text">timeStringHelper</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Seconds</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Seconds</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>100;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">timeStringHelper</span> <span class="ActionScriptOperator">&lt;</span> 10<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">timeString</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptString">"0"</span>;
+                <span class="ActionScriptDefault_Text">timeString</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">timeStringHelper</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">timeString</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Generate a comma-separated string from an array.
+         * Especially useful for tracing or other debug output.
+         * 
+         * @param    AnyArray    Any &lt;code&gt;Array&lt;/code&gt; object.
+         * 
+         * @return    A comma-separated &lt;code&gt;String&lt;/code&gt; containing the &lt;code&gt;.toString()&lt;/code&gt; output of each element in the array.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">formatArray</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">AnyArray</span>:<span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">String</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">AnyArray</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">AnyArray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span> <span class="ActionScriptString">""</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">string</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">AnyArray</span><span class="ActionScriptBracket/Brace">[</span>0<span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">toString</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">l</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">AnyArray</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+            <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">l</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">string</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptString">", "</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">AnyArray</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span><span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">toString</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">string</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Automatically commas and decimals in the right places for displaying money amounts.
+         * Does not include a dollar sign or anything, so doesn't really do much
+         * if you call say &lt;code&gt;var results:String = FlxU.formatMoney(10,false);&lt;/code&gt;
+         * However, very handy for displaying large sums or decimal money values.
+         * 
+         * @param    Amount            How much moneys (in dollars, or the equivalent "main" currency - i.e. not cents).
+         * @param    ShowDecimal        Whether to show the decimals/cents component. Default value is true.
+         * @param    EnglishStyle    Major quantities (thousands, millions, etc) separated by commas, and decimal by a period.  Default value is true.
+         * 
+         * @return    A nicely formatted &lt;code&gt;String&lt;/code&gt;.  Does not include a dollar sign or anything!
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">formatMoney</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Amount</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">ShowDecimal</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">EnglishStyle</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">String</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">helper</span>:<span class="ActionScriptDefault_Text">int</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">amount</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Amount</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">string</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">""</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">comma</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">""</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">zeroes</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">""</span>;
+            <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">amount</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">string</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">comma</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">EnglishStyle</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">comma</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">","</span>;
+                    <span class="ActionScriptReserved">else</span>
+                        <span class="ActionScriptDefault_Text">comma</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"."</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">zeroes</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">""</span>;
+                <span class="ActionScriptDefault_Text">helper</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">amount</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">amount</span><span class="ActionScriptOperator">/</span>1000<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>1000;
+                <span class="ActionScriptDefault_Text">amount</span> <span class="ActionScriptOperator">/=</span> 1000;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">amount</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">helper</span> <span class="ActionScriptOperator">&lt;</span> 100<span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">zeroes</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptString">"0"</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">helper</span> <span class="ActionScriptOperator">&lt;</span> 10<span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">zeroes</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptString">"0"</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">string</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">zeroes</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">helper</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">comma</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">string</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ShowDecimal</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">amount</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Amount</span><span class="ActionScriptOperator">*</span>100<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">-</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Amount</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>100<span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">string</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">EnglishStyle</span><span class="ActionScriptOperator">?</span><span class="ActionScriptString">"."</span>:<span class="ActionScriptString">","</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">amount</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">amount</span> <span class="ActionScriptOperator">&lt;</span> 10<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">string</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptString">"0"</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">string</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Get the &lt;code&gt;String&lt;/code&gt; name of any &lt;code&gt;Object&lt;/code&gt;.
+         * 
+         * @param    Obj        The &lt;code&gt;Object&lt;/code&gt; object in question.
+         * @param    Simple    Returns only the class name, not the package or packages.
+         * 
+         * @return    The name of the &lt;code&gt;Class&lt;/code&gt; as a &lt;code&gt;String&lt;/code&gt; object.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getClassName</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Obj</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Simple</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">String</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">string</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getQualifiedClassName</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Obj</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">string</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">string</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">replace</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"::"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptString">"."</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Simple</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">string</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">string</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">substr</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">string</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lastIndexOf</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"."</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">+</span>1<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">string</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Check to see if two objects have the same class name.
+         * 
+         * @param    Object1        The first object you want to check.
+         * @param    Object2        The second object you want to check.
+         * 
+         * @return    Whether they have the same class name or not.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">compareClassNames</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Object1</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Object2</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">getQualifiedClassName</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Object1</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">getQualifiedClassName</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Object2</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Look up a &lt;code&gt;Class&lt;/code&gt; object by its string name.
+         * 
+         * @param    Name    The &lt;code&gt;String&lt;/code&gt; name of the &lt;code&gt;Class&lt;/code&gt; you are interested in.
+         * 
+         * @return    A &lt;code&gt;Class&lt;/code&gt; object.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getClass</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Name</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Class</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">getDefinitionByName</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Name</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">Class</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * A tween-like function that takes a starting velocity
+         * and some other factors and returns an altered velocity.
+         * 
+         * @param    Velocity        Any component of velocity (e.g. 20).
+         * @param    Acceleration    Rate at which the velocity is changing.
+         * @param    Drag            Really kind of a deceleration, this is how much the velocity changes if Acceleration is not set.
+         * @param    Max                An absolute value cap for the velocity.
+         * 
+         * @return    The altered Velocity value.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">computeVelocity</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Velocity</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Acceleration</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Drag</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Max</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>10000<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Acceleration</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Velocity</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">Acceleration</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">elapsed</span>;
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Drag</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">drag</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Drag</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">elapsed</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Velocity</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">drag</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">Velocity</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Velocity</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">drag</span>;
+                <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Velocity</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">drag</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">Velocity</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">drag</span>;
+                <span class="ActionScriptReserved">else</span>
+                    <span class="ActionScriptDefault_Text">Velocity</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Velocity</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Max</span> <span class="ActionScriptOperator">!=</span> 10000<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Velocity</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">Max</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">Velocity</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Max</span>;
+                <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Velocity</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">Max</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">Velocity</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">Max</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">Velocity</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptComment">//*** NOTE: THESE LAST THREE FUNCTIONS REQUIRE FLXPOINT ***//
+</span>        
+        <span class="ActionScriptASDoc">/**
+         * Rotates a point in 2D space around another point by the given angle.
+         * 
+         * @param    X        The X coordinate of the point you want to rotate.
+         * @param    Y        The Y coordinate of the point you want to rotate.
+         * @param    PivotX    The X coordinate of the point you want to rotate around.
+         * @param    PivotY    The Y coordinate of the point you want to rotate around.
+         * @param    Angle    Rotate the point by this many degrees.
+         * @param    Point    Optional &lt;code&gt;FlxPoint&lt;/code&gt; to store the results in.
+         * 
+         * @return    A &lt;code&gt;FlxPoint&lt;/code&gt; containing the coordinates of the rotated point.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">rotatePoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Y</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">PivotX</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">PivotY</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Angle</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Point</span>:<span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sin</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">cos</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">radians</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Angle</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptOperator">-</span>0.017453293;
+            <span class="ActionScriptReserved">while</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptOperator">-</span>3.14159265<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">+=</span> 6.28318531;
+            <span class="ActionScriptReserved">while</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">&gt;</span>  3.14159265<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">-</span> 6.28318531;
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">=</span> 1.27323954 <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">+</span> .405284735 <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">radians</span>;
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">=</span> .225 <span class="ActionScriptOperator">*</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">*</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">sin</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">sin</span>;
+                <span class="ActionScriptReserved">else</span>
+                    <span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">=</span> .225 <span class="ActionScriptOperator">*</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">sin</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">sin</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">=</span> 1.27323954 <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">-</span> 0.405284735 <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">radians</span>;
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">=</span> .225 <span class="ActionScriptOperator">*</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">*</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">sin</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">sin</span>;
+                <span class="ActionScriptReserved">else</span>
+                    <span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">=</span> .225 <span class="ActionScriptOperator">*</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">sin</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">sin</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">sin</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">+=</span> 1.57079632;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">&gt;</span>  3.14159265<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">-</span> 6.28318531;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">=</span> 1.27323954 <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">+</span> 0.405284735 <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">radians</span>;
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">=</span> .225 <span class="ActionScriptOperator">*</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">*</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">cos</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">cos</span>;
+                <span class="ActionScriptReserved">else</span>
+                    <span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">=</span> .225 <span class="ActionScriptOperator">*</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">cos</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">cos</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">=</span> 1.27323954 <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">-</span> 0.405284735 <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">radians</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">radians</span>;
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">=</span> .225 <span class="ActionScriptOperator">*</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">*</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">cos</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">cos</span>;
+                <span class="ActionScriptReserved">else</span>
+                    <span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">=</span> .225 <span class="ActionScriptOperator">*</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">cos</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">cos</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">cos</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">dx</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">X</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">PivotX</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">dy</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">PivotY</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">Y</span>; <span class="ActionScriptComment">//Y axis is inverted in flash, normally this would be a subtract operation
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Point</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Point</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">PivotX</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">cos</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">dx</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">sin</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">dy</span>;
+            <span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">PivotY</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">sin</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">dx</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">cos</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">dy</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">Point</span>;
+        <span class="ActionScriptBracket/Brace">}</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Calculates the angle between two points.  0 degrees points straight up.
+         * 
+         * @param    Point1        The X coordinate of the point.
+         * @param    Point2        The Y coordinate of the point.
+         * 
+         * @return    The angle in degrees, between -180 and 180.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getAngle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Point1</span>:<span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Point2</span>:<span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">x</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Point2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">Point1</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">y</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Point2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">Point1</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">c1</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> 3.14159265 <span class="ActionScriptOperator">*</span> 0.25;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">c2</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> 3 <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">c1</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">ay</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">y</span>:<span class="ActionScriptDefault_Text">y</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">angle</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">&gt;=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">c1</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">c1</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">ay</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">ay</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">c2</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">c1</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">ay</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ay</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">angle</span>:<span class="ActionScriptDefault_Text">angle</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>57.2957796;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">&gt;</span> 90<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">-</span> 270;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">+=</span> 90;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">angle</span>;
+        <span class="ActionScriptBracket/Brace">}</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Calculate the distance between two points.
+         * 
+         * @param Point1    A &lt;code&gt;FlxPoint&lt;/code&gt; object referring to the first location.
+         * @param Point2    A &lt;code&gt;FlxPoint&lt;/code&gt; object referring to the second location.
+         * 
+         * @return    The distance between the two points as a floating point &lt;code&gt;Number&lt;/code&gt; object.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getDistance</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Point1</span>:<span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Point2</span>:<span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">dx</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Point1</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">Point2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">dy</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Point1</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">Point2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">Math</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">sqrt</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">dx</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">dx</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">dy</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">dy</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span>
+</pre></body>
+</html>

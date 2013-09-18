@@ -1,0 +1,92 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FlxTile.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">system</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FlxObject</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FlxTilemap</span>;
+    
+    <span class="ActionScriptASDoc">/**
+     * A simple helper object for &lt;code&gt;FlxTilemap&lt;/code&gt; that helps expand collision opportunities and control.
+     * You can use &lt;code&gt;FlxTilemap.setTileProperties()&lt;/code&gt; to alter the collision properties and
+     * callback functions and filters for this object to do things like one-way tiles or whatever.
+     * 
+     * @author    Adam Atomic
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">FlxTile</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">FlxObject</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/**
+         * This function is called whenever an object hits a tile of this type.
+         * This function should take the form &lt;code&gt;myFunction(Tile:FlxTile,Object:FlxObject):void&lt;/code&gt;.
+         * Defaults to null, set through &lt;code&gt;FlxTilemap.setTileProperties()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">callback</span>:<span class="ActionScriptDefault_Text">Function</span>;
+        <span class="ActionScriptASDoc">/**
+         * Each tile can store its own filter class for their callback functions.
+         * That is, the callback will only be triggered if an object with a class
+         * type matching the filter touched it.
+         * Defaults to null, set through &lt;code&gt;FlxTilemap.setTileProperties()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">filter</span>:<span class="ActionScriptDefault_Text">Class</span>;
+        <span class="ActionScriptASDoc">/**
+         * A reference to the tilemap this tile object belongs to.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">tilemap</span>:<span class="ActionScriptDefault_Text">FlxTilemap</span>;
+        <span class="ActionScriptASDoc">/**
+         * The index of this tile type in the core map data.
+         * For example, if your map only has 16 kinds of tiles in it,
+         * this number is usually between 0 and 15.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">index</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * The current map index of this tile object at this moment.
+         * You can think of tile objects as moving around the tilemap helping with collisions.
+         * This value is only reliable and useful if used from the callback function.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mapIndex</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Instantiate this new tile object.  This is usually called from &lt;code&gt;FlxTilemap.loadMap()&lt;/code&gt;.
+         * 
+         * @param Tilemap            A reference to the tilemap object creating the tile.
+         * @param Index                The actual core map data index for this tile type.
+         * @param Width                The width of the tile.
+         * @param Height            The height of the tile.
+         * @param Visible            Whether the tile is visible or not.
+         * @param AllowCollisions    The collision flags for the object.  By default this value is ANY or NONE depending on the parameters sent to loadMap().
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">FlxTile</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Tilemap</span>:<span class="ActionScriptDefault_Text">FlxTilemap</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Index</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Width</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Height</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Visible</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">AllowCollisions</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Height</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">immovable</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">moves</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">callback</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">filter</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            
+            <span class="ActionScriptDefault_Text">tilemap</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Tilemap</span>;
+            <span class="ActionScriptDefault_Text">index</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Index</span>;
+            <span class="ActionScriptDefault_Text">visible</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Visible</span>;
+            <span class="ActionScriptDefault_Text">allowCollisions</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">AllowCollisions</span>;
+            
+            <span class="ActionScriptDefault_Text">mapIndex</span> <span class="ActionScriptOperator">=</span> 0;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Clean up memory.
+         */</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">callback</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">tilemap</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span>
+</pre></body>
+</html>

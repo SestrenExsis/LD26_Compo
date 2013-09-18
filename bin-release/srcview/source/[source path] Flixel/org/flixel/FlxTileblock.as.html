@@ -1,0 +1,106 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FlxTileblock.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">BitmapData</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Rectangle</span>;
+    
+    <span class="ActionScriptASDoc">/**
+     * This is a basic "environment object" class, used to create simple walls and floors.
+     * It can be filled with a random selection of tiles to quickly add detail.
+     * 
+     * @author Adam Atomic
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">FlxTileblock</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">FlxSprite</span>
+    <span class="ActionScriptBracket/Brace">{</span>        
+        <span class="ActionScriptASDoc">/**
+         * Creates a new &lt;code&gt;FlxBlock&lt;/code&gt; object with the specified position and size.
+         * 
+         * @param    X            The X position of the block.
+         * @param    Y            The Y position of the block.
+         * @param    Width        The width of the block.
+         * @param    Height        The height of the block.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">FlxTileblock</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Y</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Width</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Height</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Y</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">makeGraphic</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Width</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Height</span><span class="ActionScriptOperator">,</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">active</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">immovable</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Fills the block with a randomly arranged selection of graphics from the image provided.
+         * 
+         * @param    TileGraphic     The graphic class that contains the tiles that should fill this block.
+         * @param    TileWidth        The width of a single tile in the graphic.
+         * @param    TileHeight        The height of a single tile in the graphic.
+         * @param    Empties            The number of "empty" tiles to add to the auto-fill algorithm (e.g. 8 tiles + 4 empties = 1/3 of block will be open holes).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">loadTiles</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">TileGraphic</span>:<span class="ActionScriptDefault_Text">Class</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">TileWidth</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">TileHeight</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Empties</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">FlxTileblock</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">TileGraphic</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">this</span>;
+            
+            <span class="ActionScriptComment">//First create a tile brush
+</span>            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sprite</span>:<span class="ActionScriptDefault_Text">FlxSprite</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxSprite</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">loadGraphic</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">TileGraphic</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">TileWidth</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">TileHeight</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">spriteWidth</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">sprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">spriteHeight</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">sprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">total</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">sprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">frames</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">Empties</span>;
+            
+            <span class="ActionScriptComment">//Then prep the "canvas" as it were (just doublechecking that the size is on tile boundaries)
+</span>            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">regen</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">%</span> <span class="ActionScriptDefault_Text">sprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">spriteWidth</span><span class="ActionScriptOperator">+</span>1<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">spriteWidth</span>;
+                <span class="ActionScriptDefault_Text">regen</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">%</span> <span class="ActionScriptDefault_Text">sprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">spriteHeight</span><span class="ActionScriptOperator">+</span>1<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">spriteHeight</span>;
+                <span class="ActionScriptDefault_Text">regen</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">regen</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">makeGraphic</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">,</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">fill</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//Stamp random tiles onto the canvas
+</span>            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">row</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">column</span>:<span class="ActionScriptDefault_Text">uint</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">destinationX</span>:<span class="ActionScriptDefault_Text">uint</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">destinationY</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">widthInTiles</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">spriteWidth</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">heightInTiles</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">spriteHeight</span>;
+            <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">row</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">heightInTiles</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">destinationX</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptDefault_Text">column</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">column</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">widthInTiles</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">total</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">Empties</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">sprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">randomFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">sprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">drawFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">stamp</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sprite</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">destinationX</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">destinationY</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                    <span class="ActionScriptDefault_Text">destinationX</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">spriteWidth</span>;
+                    <span class="ActionScriptDefault_Text">column</span><span class="ActionScriptOperator">++</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">destinationY</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">spriteHeight</span>;
+                <span class="ActionScriptDefault_Text">row</span><span class="ActionScriptOperator">++</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">this</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span>
+</pre></body>
+</html>

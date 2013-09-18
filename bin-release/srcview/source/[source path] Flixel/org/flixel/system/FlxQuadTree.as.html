@@ -1,0 +1,588 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FlxQuadTree.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">system</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FlxBasic</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FlxGroup</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FlxObject</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FlxRect</span>;
+
+    <span class="ActionScriptASDoc">/**
+     * A fairly generic quad tree structure for rapid overlap checks.
+     * FlxQuadTree is also configured for single or dual list operation.
+     * You can add items either to its A list or its B list.
+     * When you do an overlap check, you can compare the A list to itself,
+     * or the A list against the B list.  Handy for different things!
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">FlxQuadTree</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">FlxRect</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/**
+         * Flag for specifying that you want to add an object to the A list.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">A_LIST</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+        <span class="ActionScriptASDoc">/**
+         * Flag for specifying that you want to add an object to the B list.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">B_LIST</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 1;
+        
+        <span class="ActionScriptASDoc">/**
+         * Controls the granularity of the quad tree.  Default is 6 (decent performance on large and small worlds).
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">divisions</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Whether this branch of the tree can be subdivided or not.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_canSubdivide</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Refers to the internal A and B linked lists,
+         * which are used to store objects in the leaves.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_headA</span>:<span class="ActionScriptDefault_Text">FlxList</span>;
+        <span class="ActionScriptASDoc">/**
+         * Refers to the internal A and B linked lists,
+         * which are used to store objects in the leaves.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_tailA</span>:<span class="ActionScriptDefault_Text">FlxList</span>;
+        <span class="ActionScriptASDoc">/**
+         * Refers to the internal A and B linked lists,
+         * which are used to store objects in the leaves.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_headB</span>:<span class="ActionScriptDefault_Text">FlxList</span>;
+        <span class="ActionScriptASDoc">/**
+         * Refers to the internal A and B linked lists,
+         * which are used to store objects in the leaves.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_tailB</span>:<span class="ActionScriptDefault_Text">FlxList</span>;
+
+        <span class="ActionScriptASDoc">/**
+         * Internal, governs and assists with the formation of the tree.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_min</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, governs and assists with the formation of the tree.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_northWestTree</span>:<span class="ActionScriptDefault_Text">FlxQuadTree</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, governs and assists with the formation of the tree.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_northEastTree</span>:<span class="ActionScriptDefault_Text">FlxQuadTree</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, governs and assists with the formation of the tree.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_southEastTree</span>:<span class="ActionScriptDefault_Text">FlxQuadTree</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, governs and assists with the formation of the tree.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_southWestTree</span>:<span class="ActionScriptDefault_Text">FlxQuadTree</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, governs and assists with the formation of the tree.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_leftEdge</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, governs and assists with the formation of the tree.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_rightEdge</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, governs and assists with the formation of the tree.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_topEdge</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, governs and assists with the formation of the tree.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_bottomEdge</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, governs and assists with the formation of the tree.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_halfWidth</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, governs and assists with the formation of the tree.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_halfHeight</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, governs and assists with the formation of the tree.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_midpointX</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, governs and assists with the formation of the tree.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_midpointY</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to reduce recursive method parameters during object placement and tree formation.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_object</span>:<span class="ActionScriptDefault_Text">FlxObject</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to reduce recursive method parameters during object placement and tree formation.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_objectLeftEdge</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to reduce recursive method parameters during object placement and tree formation.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_objectTopEdge</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to reduce recursive method parameters during object placement and tree formation.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_objectRightEdge</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to reduce recursive method parameters during object placement and tree formation.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_objectBottomEdge</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal, used during tree processing and overlap checks.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_list</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used during tree processing and overlap checks.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_useBothLists</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used during tree processing and overlap checks.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_processingCallback</span>:<span class="ActionScriptDefault_Text">Function</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used during tree processing and overlap checks.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_notifyCallback</span>:<span class="ActionScriptDefault_Text">Function</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used during tree processing and overlap checks.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_iterator</span>:<span class="ActionScriptDefault_Text">FlxList</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal, helpers for comparing actual object-to-object overlap - see &lt;code&gt;overlapNode()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_objectHullX</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, helpers for comparing actual object-to-object overlap - see &lt;code&gt;overlapNode()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_objectHullY</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, helpers for comparing actual object-to-object overlap - see &lt;code&gt;overlapNode()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_objectHullWidth</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, helpers for comparing actual object-to-object overlap - see &lt;code&gt;overlapNode()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_objectHullHeight</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal, helpers for comparing actual object-to-object overlap - see &lt;code&gt;overlapNode()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_checkObjectHullX</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, helpers for comparing actual object-to-object overlap - see &lt;code&gt;overlapNode()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_checkObjectHullY</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, helpers for comparing actual object-to-object overlap - see &lt;code&gt;overlapNode()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_checkObjectHullWidth</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, helpers for comparing actual object-to-object overlap - see &lt;code&gt;overlapNode()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_checkObjectHullHeight</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Instantiate a new Quad Tree node.
+         * 
+         * @param    X            The X-coordinate of the point in space.
+         * @param    Y            The Y-coordinate of the point in space.
+         * @param    Width        Desired width of this node.
+         * @param    Height        Desired height of this node.
+         * @param    Parent        The parent branch or node.  Pass null to create a root.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">FlxQuadTree</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Y</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Width</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Height</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Parent</span>:<span class="ActionScriptDefault_Text">FlxQuadTree</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Y</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Width</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Height</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_headA</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_tailA</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_headB</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_tailB</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//Copy the parent's children (if there are any)
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Parent</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">iterator</span>:<span class="ActionScriptDefault_Text">FlxList</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">ot</span>:<span class="ActionScriptDefault_Text">FlxList</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Parent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">_headA</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">iterator</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Parent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">_headA</span>;
+                    <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">iterator</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_tailA</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptBracket/Brace">{</span>
+                            <span class="ActionScriptDefault_Text">ot</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_tailA</span>;
+                            <span class="ActionScriptDefault_Text">_tailA</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                            <span class="ActionScriptDefault_Text">ot</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">next</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_tailA</span>;
+                        <span class="ActionScriptBracket/Brace">}</span>
+                        <span class="ActionScriptDefault_Text">_tailA</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">iterator</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span>;
+                        <span class="ActionScriptDefault_Text">iterator</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">iterator</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">next</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Parent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">_headB</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">iterator</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Parent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">_headB</span>;
+                    <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">iterator</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_tailB</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptBracket/Brace">{</span>
+                            <span class="ActionScriptDefault_Text">ot</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_tailB</span>;
+                            <span class="ActionScriptDefault_Text">_tailB</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                            <span class="ActionScriptDefault_Text">ot</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">next</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_tailB</span>;
+                        <span class="ActionScriptBracket/Brace">}</span>
+                        <span class="ActionScriptDefault_Text">_tailB</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">iterator</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span>;
+                        <span class="ActionScriptDefault_Text">iterator</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">iterator</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">next</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">_min</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">/</span><span class="ActionScriptBracket/Brace">(</span>2<span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">divisions</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_canSubdivide</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_min</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_min</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//Set up comparison/sort helpers
+</span>            <span class="ActionScriptDefault_Text">_northWestTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_northEastTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_southEastTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_southWestTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_leftEdge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">x</span>;
+            <span class="ActionScriptDefault_Text">_rightEdge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptDefault_Text">_halfWidth</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">/</span>2;
+            <span class="ActionScriptDefault_Text">_midpointX</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_leftEdge</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">_halfWidth</span>;
+            <span class="ActionScriptDefault_Text">_topEdge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">y</span>;
+            <span class="ActionScriptDefault_Text">_bottomEdge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">y</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">height</span>;
+            <span class="ActionScriptDefault_Text">_halfHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">/</span>2;
+            <span class="ActionScriptDefault_Text">_midpointY</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_topEdge</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">_halfHeight</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Clean up memory.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_headA</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_headA</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_tailA</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_tailA</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_headB</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_headB</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_tailB</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_tailB</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_northWestTree</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_northWestTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_northWestTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_northEastTree</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_northEastTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_northEastTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_southEastTree</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_southEastTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_southEastTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_southWestTree</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_southWestTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_southWestTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+
+            <span class="ActionScriptDefault_Text">_object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_processingCallback</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_notifyCallback</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/**
+         * Load objects and/or groups into the quad tree, and register notify and processing callbacks.
+         * 
+         * @param ObjectOrGroup1    Any object that is or extends FlxObject or FlxGroup.
+         * @param ObjectOrGroup2    Any object that is or extends FlxObject or FlxGroup.  If null, the first parameter will be checked against itself.
+         * @param NotifyCallback    A function with the form &lt;code&gt;myFunction(Object1:FlxObject,Object2:FlxObject):void&lt;/code&gt; that is called whenever two objects are found to overlap in world space, and either no ProcessCallback is specified, or the ProcessCallback returns true. 
+         * @param ProcessCallback    A function with the form &lt;code&gt;myFunction(Object1:FlxObject,Object2:FlxObject):Boolean&lt;/code&gt; that is called whenever two objects are found to overlap in world space.  The NotifyCallback is only called if this function returns true.  See FlxObject.separate(). 
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">load</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ObjectOrGroup1</span>:<span class="ActionScriptDefault_Text">FlxBasic</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">ObjectOrGroup2</span>:<span class="ActionScriptDefault_Text">FlxBasic</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">NotifyCallback</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">ProcessCallback</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">add</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ObjectOrGroup1</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">A_LIST</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ObjectOrGroup2</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">add</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ObjectOrGroup2</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">B_LIST</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_useBothLists</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">_useBothLists</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">_notifyCallback</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">NotifyCallback</span>;
+            <span class="ActionScriptDefault_Text">_processingCallback</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">ProcessCallback</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Call this function to add an object to the root of the tree.
+         * This function will recursively add all group members, but
+         * not the groups themselves.
+         * 
+         * @param    ObjectOrGroup    FlxObjects are just added, FlxGroups are recursed and their applicable members added accordingly.
+         * @param    List            A &lt;code&gt;uint&lt;/code&gt; flag indicating the list to which you want to add the objects.  Options are &lt;code&gt;A_LIST&lt;/code&gt; and &lt;code&gt;B_LIST&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">add</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ObjectOrGroup</span>:<span class="ActionScriptDefault_Text">FlxBasic</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">List</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_list</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">List</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ObjectOrGroup</span> <span class="ActionScriptReserved">is</span> <span class="ActionScriptDefault_Text">FlxGroup</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">basic</span>:<span class="ActionScriptDefault_Text">FlxBasic</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">members</span>:<span class="ActionScriptDefault_Text">Array</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ObjectOrGroup</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">FlxGroup</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">members</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">l</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ObjectOrGroup</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">FlxGroup</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+                <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">l</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">basic</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">members</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">FlxBasic</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">basic</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">basic</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">exists</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">basic</span> <span class="ActionScriptReserved">is</span> <span class="ActionScriptDefault_Text">FlxGroup</span><span class="ActionScriptBracket/Brace">)</span>
+                            <span class="ActionScriptDefault_Text">add</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">basic</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">List</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">basic</span> <span class="ActionScriptReserved">is</span> <span class="ActionScriptDefault_Text">FlxObject</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptBracket/Brace">{</span>
+                            <span class="ActionScriptDefault_Text">_object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">basic</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">FlxObject</span>;
+                            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">exists</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">allowCollisions</span><span class="ActionScriptBracket/Brace">)</span>
+                            <span class="ActionScriptBracket/Brace">{</span>
+                                <span class="ActionScriptDefault_Text">_objectLeftEdge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+                                <span class="ActionScriptDefault_Text">_objectTopEdge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+                                <span class="ActionScriptDefault_Text">_objectRightEdge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+                                <span class="ActionScriptDefault_Text">_objectBottomEdge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+                                <span class="ActionScriptDefault_Text">addObject</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                            <span class="ActionScriptBracket/Brace">}</span>
+                        <span class="ActionScriptBracket/Brace">}</span>
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">ObjectOrGroup</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">FlxObject</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">exists</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">allowCollisions</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_objectLeftEdge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+                    <span class="ActionScriptDefault_Text">_objectTopEdge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+                    <span class="ActionScriptDefault_Text">_objectRightEdge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+                    <span class="ActionScriptDefault_Text">_objectBottomEdge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+                    <span class="ActionScriptDefault_Text">addObject</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal function for recursively navigating and creating the tree
+         * while adding objects to the appropriate nodes.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">addObject</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">//If this quad (not its children) lies entirely inside this object, add it here
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">_canSubdivide</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_leftEdge</span> <span class="ActionScriptOperator">&gt;=</span> <span class="ActionScriptDefault_Text">_objectLeftEdge</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_rightEdge</span> <span class="ActionScriptOperator">&lt;=</span> <span class="ActionScriptDefault_Text">_objectRightEdge</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_topEdge</span> <span class="ActionScriptOperator">&gt;=</span> <span class="ActionScriptDefault_Text">_objectTopEdge</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_bottomEdge</span> <span class="ActionScriptOperator">&lt;=</span> <span class="ActionScriptDefault_Text">_objectBottomEdge</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">addToList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//See if the selected object fits completely inside any of the quadrants
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectLeftEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_leftEdge</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectRightEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_midpointX</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectTopEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_topEdge</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectBottomEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_midpointY</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_northWestTree</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">_northWestTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxQuadTree</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_leftEdge</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_topEdge</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfWidth</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfHeight</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">this</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">_northWestTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addObject</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">return</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectTopEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_midpointY</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectBottomEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_bottomEdge</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_southWestTree</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">_southWestTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxQuadTree</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_leftEdge</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_midpointY</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfWidth</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfHeight</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">this</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">_southWestTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addObject</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">return</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectLeftEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_midpointX</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectRightEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_rightEdge</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectTopEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_topEdge</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectBottomEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_midpointY</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_northEastTree</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">_northEastTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxQuadTree</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_midpointX</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_topEdge</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfWidth</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfHeight</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">this</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">_northEastTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addObject</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">return</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectTopEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_midpointY</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectBottomEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_bottomEdge</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_southEastTree</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">_southEastTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxQuadTree</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_midpointX</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_midpointY</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfWidth</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfHeight</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">this</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">_southEastTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addObject</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">return</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//If it wasn't completely contained we have to check out the partial overlaps
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectRightEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_leftEdge</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectLeftEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_midpointX</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectBottomEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_topEdge</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectTopEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_midpointY</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_northWestTree</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">_northWestTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxQuadTree</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_leftEdge</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_topEdge</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfWidth</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfHeight</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">this</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_northWestTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addObject</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectRightEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_midpointX</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectLeftEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_rightEdge</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectBottomEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_topEdge</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectTopEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_midpointY</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_northEastTree</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">_northEastTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxQuadTree</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_midpointX</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_topEdge</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfWidth</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfHeight</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">this</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_northEastTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addObject</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectRightEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_midpointX</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectLeftEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_rightEdge</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectBottomEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_midpointY</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectTopEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_bottomEdge</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_southEastTree</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">_southEastTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxQuadTree</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_midpointX</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_midpointY</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfWidth</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfHeight</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">this</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_southEastTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addObject</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectRightEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_leftEdge</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectLeftEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_midpointX</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectBottomEdge</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_midpointY</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectTopEdge</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_bottomEdge</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_southWestTree</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">_southWestTree</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxQuadTree</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_leftEdge</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_midpointY</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfWidth</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_halfHeight</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">this</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_southWestTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addObject</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal function for recursively adding objects to leaf lists.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">addToList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">ot</span>:<span class="ActionScriptDefault_Text">FlxList</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_list</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">A_LIST</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_tailA</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">ot</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_tailA</span>;
+                    <span class="ActionScriptDefault_Text">_tailA</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">ot</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">next</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_tailA</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">_tailA</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_tailB</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">ot</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_tailB</span>;
+                    <span class="ActionScriptDefault_Text">_tailB</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">ot</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">next</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_tailB</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">_tailB</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">_canSubdivide</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_northWestTree</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_northWestTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addToList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_northEastTree</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_northEastTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addToList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_southEastTree</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_southEastTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addToList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_southWestTree</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_southWestTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addToList</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * &lt;code&gt;FlxQuadTree&lt;/code&gt;'s other main function.  Call this after adding objects
+         * using &lt;code&gt;FlxQuadTree.load()&lt;/code&gt; to compare the objects that you loaded.
+         *
+         * @return    Whether or not any overlaps were found.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">execute</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">overlapProcessed</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">iterator</span>:<span class="ActionScriptDefault_Text">FlxList</span>;
+            
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_headA</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">iterator</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_headA</span>;
+                <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">iterator</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">iterator</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_useBothLists</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">_iterator</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_headB</span>;
+                    <span class="ActionScriptReserved">else</span>
+                        <span class="ActionScriptDefault_Text">_iterator</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">iterator</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">next</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span>    <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">exists</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">allowCollisions</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span>
+                        <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_iterator</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_iterator</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span>
+                        <span class="ActionScriptDefault_Text">_iterator</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">exists</span> <span class="ActionScriptOperator">&amp;&amp;</span><span class="ActionScriptDefault_Text">overlapNode</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">overlapProcessed</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                    <span class="ActionScriptDefault_Text">iterator</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">iterator</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">next</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//Advance through the tree by calling overlap on each child
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_northWestTree</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">_northWestTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">execute</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">overlapProcessed</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_northEastTree</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">_northEastTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">execute</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">overlapProcessed</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_southEastTree</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">_southEastTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">execute</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">overlapProcessed</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_southWestTree</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">_southWestTree</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">execute</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">overlapProcessed</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">overlapProcessed</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * An internal function for comparing an object against the contents of a node.
+         * 
+         * @return    Whether or not any overlaps were found.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">overlapNode</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">//Walk the list and check for overlaps
+</span>            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">overlapProcessed</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">checkObject</span>:<span class="ActionScriptDefault_Text">FlxObject</span>;
+            <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_iterator</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">exists</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">allowCollisions</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptReserved">break</span>;
+                
+                <span class="ActionScriptDefault_Text">checkObject</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_iterator</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">object</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_object</span> <span class="ActionScriptOperator">===</span> <span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">exists</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">allowCollisions</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_iterator</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_iterator</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">next</span>;
+                    <span class="ActionScriptReserved">continue</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                
+                <span class="ActionScriptComment">//calculate bulk hull for _object
+</span>                <span class="ActionScriptDefault_Text">_objectHullX</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">last</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>:<span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">last</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+                <span class="ActionScriptDefault_Text">_objectHullY</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">last</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>:<span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">last</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+                <span class="ActionScriptDefault_Text">_objectHullWidth</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">last</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+                <span class="ActionScriptDefault_Text">_objectHullWidth</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectHullWidth</span><span class="ActionScriptOperator">&gt;</span>0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">_objectHullWidth</span>:<span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">_objectHullWidth</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_objectHullHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">last</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+                <span class="ActionScriptDefault_Text">_objectHullHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectHullHeight</span><span class="ActionScriptOperator">&gt;</span>0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">_objectHullHeight</span>:<span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">_objectHullHeight</span><span class="ActionScriptBracket/Brace">)</span>;
+                
+                <span class="ActionScriptComment">//calculate bulk hull for checkObject
+</span>                <span class="ActionScriptDefault_Text">_checkObjectHullX</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">last</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>:<span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">last</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+                <span class="ActionScriptDefault_Text">_checkObjectHullY</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">last</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>:<span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">last</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+                <span class="ActionScriptDefault_Text">_checkObjectHullWidth</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">last</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+                <span class="ActionScriptDefault_Text">_checkObjectHullWidth</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_checkObjectHullWidth</span><span class="ActionScriptOperator">&gt;</span>0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">_checkObjectHullWidth</span>:<span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">_checkObjectHullWidth</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_checkObjectHullHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">last</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+                <span class="ActionScriptDefault_Text">_checkObjectHullHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_checkObjectHullHeight</span><span class="ActionScriptOperator">&gt;</span>0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">_checkObjectHullHeight</span>:<span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">_checkObjectHullHeight</span><span class="ActionScriptBracket/Brace">)</span>;
+                
+                <span class="ActionScriptComment">//check for intersection of the two hulls
+</span>                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span>    <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectHullX</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_objectHullWidth</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_checkObjectHullX</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span>
+                    <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectHullX</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_checkObjectHullX</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_checkObjectHullWidth</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span>
+                    <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectHullY</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_objectHullHeight</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_checkObjectHullY</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span>
+                    <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_objectHullY</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">_checkObjectHullY</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_checkObjectHullHeight</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptComment">//Execute callback functions if they exist
+</span>                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_processingCallback</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptDefault_Text">_processingCallback</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">overlapProcessed</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">overlapProcessed</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_notifyCallback</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">_notifyCallback</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_object</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">checkObject</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">_iterator</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_iterator</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">next</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">overlapProcessed</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span>
+</pre></body>
+</html>

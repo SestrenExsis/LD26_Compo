@@ -1,0 +1,938 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FlxSprite.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Bitmap</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">BitmapData</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Graphics</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ColorTransform</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Matrix</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Point</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Rectangle</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">system</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FlxAnim</span>;
+    
+    <span class="ActionScriptASDoc">/**
+     * The main "game object" class, the sprite is a &lt;code&gt;FlxObject&lt;/code&gt;
+     * with a bunch of graphics options and abilities, like animation and stamping.
+     * 
+     * @author    Adam Atomic
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">FlxSprite</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">FlxObject</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Embed</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"data/default.png"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">ImgDefault</span>:<span class="ActionScriptDefault_Text">Class</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * WARNING: The origin of the sprite will default to its center.
+         * If you change this, the visuals and the collisions will likely be
+         * pretty out-of-sync if you do any rotation.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">origin</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+        <span class="ActionScriptASDoc">/**
+        * If you changed the size of your sprite object after loading or making the graphic,
+        * you might need to offset the graphic away from the bound box to center it the way you want.
+        */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">offset</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Change the size of your sprite's graphic.
+         * NOTE: Scale doesn't currently affect collisions automatically,
+         * you will need to adjust the width, height and offset manually.
+         * WARNING: scaling sprites decreases rendering performance for this sprite by a factor of 10x!
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">scale</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+        <span class="ActionScriptComment">///**
+</span>        <span class="ActionScriptComment">// * Change the skew of your sprite's graphic.
+</span>        <span class="ActionScriptComment">// * WARNING: skewing sprites decreases rendering performance for this sprite by a factor of 10x!
+</span>        <span class="ActionScriptComment">// */
+</span>        <span class="ActionScriptComment">//public var skew:FlxPoint;
+</span>        <span class="ActionScriptASDoc">/**
+         * Blending modes, just like Photoshop or whatever.
+         * E.g. "multiply", "screen", etc.
+         * @default null
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">blend</span>:<span class="ActionScriptDefault_Text">String</span>;
+        <span class="ActionScriptASDoc">/**
+         * Controls whether the object is smoothed when rotated, affects performance.
+         * @default false
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">antialiasing</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/**
+         * Whether the current animation has finished its first (or only) loop.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">finished</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/**
+         * The width of the actual graphic or image being displayed (not necessarily the game object/bounding box).
+         * NOTE: Edit at your own risk!!  This is intended to be read-only.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">frameWidth</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * The height of the actual graphic or image being displayed (not necessarily the game object/bounding box).
+         * NOTE: Edit at your own risk!!  This is intended to be read-only.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">frameHeight</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * The total number of frames in this image.  WARNING: assumes each row in the sprite sheet is full!
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">frames</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * The actual Flash &lt;code&gt;BitmapData&lt;/code&gt; object representing the current display state of the sprite.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">framePixels</span>:<span class="ActionScriptDefault_Text">BitmapData</span>;
+        <span class="ActionScriptASDoc">/**
+         * Set this flag to true to force the sprite to update during the draw() call.
+         * NOTE: Rarely if ever necessary, most sprite operations will flip this flag automatically.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">dirty</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal, stores all the animations that were added to this sprite.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_animations</span>:<span class="ActionScriptDefault_Text">Array</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, keeps track of whether the sprite was loaded with support for automatic reverse/mirroring.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_flipped</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, keeps track of the current animation being played.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_curAnim</span>:<span class="ActionScriptDefault_Text">FlxAnim</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, keeps track of the current frame of animation.
+         * This is NOT an index into the tile sheet, but the frame number in the animation object.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_curFrame</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, keeps track of the current index into the tile sheet based on animation or rotation.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_curIndex</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to time each frame of animation.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_frameTimer</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal tracker for the animation callback.  Default is null.
+         * If assigned, will be called each time the current frame changes.
+         * A function that has 3 parameters: a string name, a uint frame number, and a uint frame index.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_callback</span>:<span class="ActionScriptDefault_Text">Function</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal tracker for what direction the sprite is currently facing, used with Flash getter/setter.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_facing</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal tracker for opacity, used with Flash getter/setter.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_alpha</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal tracker for color tint, used with Flash getter/setter.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_color</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal tracker for how many frames of "baked" rotation there are (if any).
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_bakedRotation</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, stores the entire source graphic (not the current displayed animation frame), used with Flash getter/setter.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_pixels</span>:<span class="ActionScriptDefault_Text">BitmapData</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal, reused frequently during drawing and animating.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_flashPoint</span>:<span class="ActionScriptDefault_Text">Point</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, reused frequently during drawing and animating.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_flashRect</span>:<span class="ActionScriptDefault_Text">Rectangle</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, reused frequently during drawing and animating.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_flashRect2</span>:<span class="ActionScriptDefault_Text">Rectangle</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, reused frequently during drawing and animating. Always contains (0,0).
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_flashPointZero</span>:<span class="ActionScriptDefault_Text">Point</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, helps with animation, caching and drawing.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_colorTransform</span>:<span class="ActionScriptDefault_Text">ColorTransform</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, helps with animation, caching and drawing.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_matrix</span>:<span class="ActionScriptDefault_Text">Matrix</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Creates a white 8x8 square &lt;code&gt;FlxSprite&lt;/code&gt; at the specified position.
+         * Optionally can load a simple, one-frame graphic instead.
+         * 
+         * @param    X                The initial X position of the sprite.
+         * @param    Y                The initial Y position of the sprite.
+         * @param    SimpleGraphic    The graphic you want to display (OPTIONAL - for simple stuff only, do NOT use for animated images!).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">FlxSprite</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Y</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">SimpleGraphic</span>:<span class="ActionScriptDefault_Text">Class</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Y</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptDefault_Text">health</span> <span class="ActionScriptOperator">=</span> 1;
+
+            <span class="ActionScriptDefault_Text">_flashPoint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_flashRect</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_flashRect2</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_flashPointZero</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">offset</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">origin</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptDefault_Text">scale</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span>1.0<span class="ActionScriptOperator">,</span>1.0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptComment">//skew = new FlxPoint(0.0,0.0);
+</span>            <span class="ActionScriptDefault_Text">_alpha</span> <span class="ActionScriptOperator">=</span> 1;
+            <span class="ActionScriptDefault_Text">_color</span> <span class="ActionScriptOperator">=</span> 0x00ffffff;
+            <span class="ActionScriptDefault_Text">blend</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">antialiasing</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">cameras</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            
+            <span class="ActionScriptDefault_Text">finished</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">_facing</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">RIGHT</span>;
+            <span class="ActionScriptDefault_Text">_animations</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_flipped</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_curAnim</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_curFrame</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_curIndex</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_frameTimer</span> <span class="ActionScriptOperator">=</span> 0;
+
+            <span class="ActionScriptDefault_Text">_matrix</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Matrix</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_callback</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">SimpleGraphic</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">SimpleGraphic</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">ImgDefault</span>;
+            <span class="ActionScriptDefault_Text">loadGraphic</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">SimpleGraphic</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Clean up memory.
+         */</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_animations</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">a</span>:<span class="ActionScriptDefault_Text">FlxAnim</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">l</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_animations</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+                <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">l</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">a</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_animations</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span><span class="ActionScriptBracket/Brace">]</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">a</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">a</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">_animations</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptDefault_Text">_flashPoint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_flashRect</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_flashRect2</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_flashPointZero</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">offset</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">origin</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">scale</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptComment">//skew = null;
+</span>            <span class="ActionScriptDefault_Text">_curAnim</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_matrix</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_callback</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">framePixels</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Load an image from an embedded graphic file.
+         * 
+         * @param    Graphic        The image you want to use.
+         * @param    Animated    Whether the Graphic parameter is a single sprite or a row of sprites.
+         * @param    Reverse        Whether you need this class to generate horizontally flipped versions of the animation frames.
+         * @param    Width        Optional, specify the width of your sprite (helps FlxSprite figure out what to do with non-square sprites or sprite sheets).
+         * @param    Height        Optional, specify the height of your sprite (helps FlxSprite figure out what to do with non-square sprites or sprite sheets).
+         * @param    Unique        Optional, whether the graphic should be a unique instance in the graphics cache.  Default is false.
+         * 
+         * @return    This FlxSprite instance (nice for chaining stuff together, if you're into that).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">loadGraphic</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Graphic</span>:<span class="ActionScriptDefault_Text">Class</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Animated</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Reverse</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Width</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Height</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Unique</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">FlxSprite</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_bakedRotation</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_pixels</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addBitmap</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Graphic</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Reverse</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Unique</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Reverse</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_flipped</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">&gt;&gt;</span>1;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">_flipped</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Width</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Animated</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">Width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+                <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flipped</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">Width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">*</span>0.5;
+                <span class="ActionScriptReserved">else</span>
+                    <span class="ActionScriptDefault_Text">Width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frameWidth</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Width</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Height</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Animated</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">Height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">width</span>;
+                <span class="ActionScriptReserved">else</span>
+                    <span class="ActionScriptDefault_Text">Height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frameHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Height</span>;
+            <span class="ActionScriptDefault_Text">resetHelpers</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">this</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Create a pre-rotated sprite sheet from a simple sprite.
+         * This can make a huge difference in graphical performance!
+         * 
+         * @param    Graphic            The image you want to rotate and stamp.
+         * @param    Rotations        The number of rotation frames the final sprite should have.  For small sprites this can be quite a large number (360 even) without any problems.
+         * @param    Frame            If the Graphic has a single row of square animation frames on it, you can specify which of the frames you want to use here.  Default is -1, or "use whole graphic."
+         * @param    AntiAliasing    Whether to use high quality rotations when creating the graphic.  Default is false.
+         * @param    AutoBuffer        Whether to automatically increase the image size to accomodate rotated corners.  Default is false.  Will create frames that are 150% larger on each axis than the original frame or graphic.
+         * 
+         * @return    This FlxSprite instance (nice for chaining stuff together, if you're into that).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">loadRotatedGraphic</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Graphic</span>:<span class="ActionScriptDefault_Text">Class</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Rotations</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>16<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Frame</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>-1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">AntiAliasing</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">AutoBuffer</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">FlxSprite</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">//Create the brush and canvas
+</span>            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">rows</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Math</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">sqrt</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Rotations</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">brush</span>:<span class="ActionScriptDefault_Text">BitmapData</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addBitmap</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Graphic</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Frame</span> <span class="ActionScriptOperator">&gt;=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptComment">//Using just a segment of the graphic - find the right bit here
+</span>                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">full</span>:<span class="ActionScriptDefault_Text">BitmapData</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">brush</span>;
+                <span class="ActionScriptDefault_Text">brush</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">BitmapData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">full</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">full</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">rx</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Frame</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">ry</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">fw</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">full</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">rx</span> <span class="ActionScriptOperator">&gt;=</span> <span class="ActionScriptDefault_Text">fw</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">ry</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">rx</span><span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">fw</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+                    <span class="ActionScriptDefault_Text">rx</span> <span class="ActionScriptOperator">%=</span> <span class="ActionScriptDefault_Text">fw</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">rx</span>;
+                <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">ry</span>;
+                <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+                <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+                <span class="ActionScriptDefault_Text">brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyPixels</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">full</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashPointZero</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">max</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">max</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">max</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">AutoBuffer</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">max</span> <span class="ActionScriptOperator">*=</span> 1.5;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">columns</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxU</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ceil</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Rotations</span><span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">rows</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">max</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">columns</span>;
+            <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">max</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">rows</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">key</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Graphic</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptString">":"</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">Frame</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptString">":"</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptString">"x"</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">height</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">skipGen</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">checkBitmapCache</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">key</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_pixels</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">createBitmap</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">key</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frameWidth</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frameHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+            <span class="ActionScriptDefault_Text">_bakedRotation</span> <span class="ActionScriptOperator">=</span> 360<span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">Rotations</span>;
+            
+            <span class="ActionScriptComment">//Generate a new sheet if necessary, then fix up the width and height
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">skipGen</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">row</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">column</span>:<span class="ActionScriptDefault_Text">uint</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">bakedAngle</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">halfBrushWidth</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">*</span>0.5;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">halfBrushHeight</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">*</span>0.5;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">midpointX</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">max</span><span class="ActionScriptOperator">*</span>0.5;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">midpointY</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">max</span><span class="ActionScriptOperator">*</span>0.5;
+                <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">row</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">rows</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">column</span> <span class="ActionScriptOperator">=</span> 0;
+                    <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">column</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">columns</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">identity</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">translate</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">halfBrushWidth</span><span class="ActionScriptOperator">,</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">halfBrushHeight</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rotate</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">bakedAngle</span><span class="ActionScriptOperator">*</span>0.017453293<span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">translate</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">max</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">column</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">midpointX</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">midpointY</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">bakedAngle</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">_bakedRotation</span>;
+                        <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">draw</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">brush</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">AntiAliasing</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">column</span><span class="ActionScriptOperator">++</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                    <span class="ActionScriptDefault_Text">midpointY</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">max</span>;
+                    <span class="ActionScriptDefault_Text">row</span><span class="ActionScriptOperator">++</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">frameWidth</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frameHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">max</span>;
+            <span class="ActionScriptDefault_Text">resetHelpers</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">AutoBuffer</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+                <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+                <span class="ActionScriptDefault_Text">centerOffsets</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">this</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * This function creates a flat colored square image dynamically.
+         * 
+         * @param    Width        The width of the sprite you want to generate.
+         * @param    Height        The height of the sprite you want to generate.
+         * @param    Color        Specifies the color of the generated block.
+         * @param    Unique        Whether the graphic should be a unique instance in the graphics cache.  Default is false.
+         * @param    Key            Optional parameter - specify a string key to identify this graphic in the cache.  Trumps Unique flag.
+         * 
+         * @return    This FlxSprite instance (nice for chaining stuff together, if you're into that).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">makeGraphic</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Width</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Height</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0xffffffff<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Unique</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Key</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">FlxSprite</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_bakedRotation</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_pixels</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">createBitmap</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Width</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Height</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Color</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Unique</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Key</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frameWidth</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frameHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+            <span class="ActionScriptDefault_Text">resetHelpers</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">this</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Resets some important variables for sprite optimization and rendering.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">resetHelpers</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frameWidth</span>;
+            <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frameHeight</span>;
+            <span class="ActionScriptDefault_Text">_flashRect2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_flashRect2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_flashRect2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptDefault_Text">_flashRect2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">framePixels</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">framePixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">framePixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">framePixels</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">BitmapData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">origin</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">make</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">frameWidth</span><span class="ActionScriptOperator">*</span>0.5<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">frameHeight</span><span class="ActionScriptOperator">*</span>0.5<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">framePixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyPixels</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashPointZero</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">frames</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flashRect2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flashRect2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_colorTransform</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">framePixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">colorTransform</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_colorTransform</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_curIndex</span> <span class="ActionScriptOperator">=</span> 0;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Automatically called after update() by the game loop,
+         * this function just calls updateAnimation().
+         */</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">postUpdate</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">postUpdate</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">updateAnimation</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Called by game loop, updates then blits or renders current frame of animation to the screen
+         */</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">draw</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flickerTimer</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_flicker</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">_flicker</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flicker</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">dirty</span><span class="ActionScriptBracket/Brace">)</span>    <span class="ActionScriptComment">//rarely 
+</span>                <span class="ActionScriptDefault_Text">calcFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">cameras</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">cameras</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cameras</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">camera</span>:<span class="ActionScriptDefault_Text">FlxCamera</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">l</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">cameras</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+            <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">l</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">camera</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">cameras</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span><span class="ActionScriptBracket/Brace">]</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">onScreen</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">camera</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptReserved">continue</span>;
+                <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">scrollFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">offset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+                <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">scrollFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">offset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+                <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span>0.0000001:<span class="ActionScriptOperator">-</span>0.0000001;
+                <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span>0.0000001:<span class="ActionScriptOperator">-</span>0.0000001;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_bakedRotation</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">==</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">==</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">blend</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptComment">//&amp;&amp; (skew.x == 0) &amp;&amp; (skew.y == 0)
+</span>                <span class="ActionScriptBracket/Brace">{</span>    <span class="ActionScriptComment">//Simple render
+</span>                    <span class="ActionScriptDefault_Text">_flashPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+                    <span class="ActionScriptDefault_Text">_flashPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+                    <span class="ActionScriptDefault_Text">camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">buffer</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyPixels</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">framePixels</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashPoint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptBracket/Brace">{</span>    <span class="ActionScriptComment">//Advanced render
+</span>                    <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">identity</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptComment">//_matrix.concat(new flash.geom.Matrix(1, skew.y, skew.x, 1, 0, 0));//***
+</span>                    <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">translate</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">origin</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">origin</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_bakedRotation</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rotate</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">*</span> 0.017453293<span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">translate</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">origin</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">origin</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">buffer</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">draw</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">framePixels</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">blend</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">antialiasing</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">_VISIBLECOUNT</span><span class="ActionScriptOperator">++</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visualDebug</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">ignoreDrawDebug</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">drawDebug</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">camera</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * This function draws or stamps one &lt;code&gt;FlxSprite&lt;/code&gt; onto another.
+         * This function is NOT intended to replace &lt;code&gt;draw()&lt;/code&gt;!
+         * 
+         * @param    Brush        The image you want to use as a brush or stamp or pen or whatever.
+         * @param    X            The X coordinate of the brush's top left corner on this sprite.
+         * @param    Y            They Y coordinate of the brush's top left corner on this sprite.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">stamp</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Brush</span>:<span class="ActionScriptDefault_Text">FlxSprite</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">X</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Y</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">drawFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">bitmapData</span>:<span class="ActionScriptDefault_Text">BitmapData</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">framePixels</span>;
+            
+            <span class="ActionScriptComment">//Simple draw
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">_bakedRotation</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">==</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">==</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">blend</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_flashPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">X</span>;
+                <span class="ActionScriptDefault_Text">_flashPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Y</span>;
+                <span class="ActionScriptDefault_Text">_flashRect2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">bitmapData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+                <span class="ActionScriptDefault_Text">_flashRect2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">bitmapData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+                <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyPixels</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">bitmapData</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashRect2</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashPoint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_flashRect2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+                <span class="ActionScriptDefault_Text">_flashRect2</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+                <span class="ActionScriptDefault_Text">calcFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//Advanced draw
+</span>            <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">identity</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">translate</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">origin</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">origin</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rotate</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">*</span> 0.017453293<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">translate</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">origin</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Y</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">origin</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">draw</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">bitmapData</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_matrix</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">blend</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Brush</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">antialiasing</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">calcFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * This function draws a line on this sprite from position X1,Y1
+         * to position X2,Y2 with the specified color.
+         * 
+         * @param    StartX        X coordinate of the line's start point.
+         * @param    StartY        Y coordinate of the line's start point.
+         * @param    EndX        X coordinate of the line's end point.
+         * @param    EndY        Y coordinate of the line's end point.
+         * @param    Color        The line's color.
+         * @param    Thickness    How thick the line is in pixels (default value is 1).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">drawLine</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">StartX</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">StartY</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">EndX</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">EndY</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Thickness</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">//Draw line
+</span>            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">gfx</span>:<span class="ActionScriptDefault_Text">Graphics</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flashGfx</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clear</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">moveTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">StartX</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">StartY</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">alphaComponent</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span> <span class="ActionScriptOperator">&gt;&gt;</span> 24<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;</span> 0xFF<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> 255;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">alphaComponent</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">alphaComponent</span> <span class="ActionScriptOperator">=</span> 1;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lineStyle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Thickness</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Color</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">alphaComponent</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">gfx</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lineTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">EndX</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">EndY</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">//Cache line to bitmap
+</span>            <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">draw</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flashGfxSprite</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">dirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Fills this sprite's graphic with a specific color.
+         * 
+         * @param    Color        The color with which to fill the graphic, format 0xAARRGGBB.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fill</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">fillRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flashRect2</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Color</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_pixels</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptDefault_Text">framePixels</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">dirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal function for updating the sprite's animation.
+         * Useful for cases when you need to update this but are buried down in too many supers.
+         * This function is called automatically by &lt;code&gt;FlxSprite.postUpdate()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">updateAnimation</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_bakedRotation</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">oldIndex</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_curIndex</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">angleHelper</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">angle</span><span class="ActionScriptOperator">%</span>360;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">angleHelper</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">angleHelper</span> <span class="ActionScriptOperator">+=</span> 360;
+                <span class="ActionScriptDefault_Text">_curIndex</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">angleHelper</span><span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">_bakedRotation</span> <span class="ActionScriptOperator">+</span> 0.5;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">oldIndex</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptDefault_Text">_curIndex</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">dirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_curAnim</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_curAnim</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">delay</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_curAnim</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">looped</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">finished</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_frameTimer</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">elapsed</span>;
+                <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_frameTimer</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">_curAnim</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">delay</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_frameTimer</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_frameTimer</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">_curAnim</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">delay</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_curFrame</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">_curAnim</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">frames</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span><span class="ActionScriptOperator">-</span>1<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_curAnim</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">looped</span><span class="ActionScriptBracket/Brace">)</span>
+                            <span class="ActionScriptDefault_Text">_curFrame</span> <span class="ActionScriptOperator">=</span> 0;
+                        <span class="ActionScriptDefault_Text">finished</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                    <span class="ActionScriptReserved">else</span>
+                        <span class="ActionScriptDefault_Text">_curFrame</span><span class="ActionScriptOperator">++</span>;
+                    <span class="ActionScriptDefault_Text">_curIndex</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_curAnim</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">frames</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">_curFrame</span><span class="ActionScriptBracket/Brace">]</span>;
+                    <span class="ActionScriptDefault_Text">dirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">dirty</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">calcFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Request (or force) that the sprite update the frame before rendering.
+         * Useful if you are doing procedural generation or other weirdness!
+         * 
+         * @param    Force    Force the frame to redraw, even if its not flagged as necessary.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">drawFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Force</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Force</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptDefault_Text">dirty</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">calcFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Adds a new animation to the sprite.
+         * 
+         * @param    Name        What this animation should be called (e.g. "run").
+         * @param    Frames        An array of numbers indicating what frames to play in what order (e.g. 1, 2, 3).
+         * @param    FrameRate    The speed in frames per second that the animation should play at (e.g. 40 fps).
+         * @param    Looped        Whether or not the animation is looped or just plays once.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">addAnimation</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Name</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Frames</span>:<span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">FrameRate</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Looped</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_animations</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">push</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxAnim</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Name</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Frames</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">FrameRate</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Looped</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Pass in a function to be called whenever this sprite's animation changes.
+         * 
+         * @param    AnimationCallback        A function that has 3 parameters: a string name, a uint frame number, and a uint frame index.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">addAnimationCallback</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">AnimationCallback</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_callback</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">AnimationCallback</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Plays an existing animation (e.g. "run").
+         * If you call an animation that is already playing it will be ignored.
+         * 
+         * @param    AnimName    The string name of the animation you want to play.
+         * @param    Force        Whether to force the animation to restart.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">play</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">AnimName</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Force</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">Force</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_curAnim</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">AnimName</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">_curAnim</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_curAnim</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">looped</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">finished</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptDefault_Text">_curFrame</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_curIndex</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_frameTimer</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">l</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_animations</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+            <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">l</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_animations</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">name</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">AnimName</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_curAnim</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_animations</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_curAnim</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">delay</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">finished</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+                    <span class="ActionScriptReserved">else</span>
+                        <span class="ActionScriptDefault_Text">finished</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                    <span class="ActionScriptDefault_Text">_curIndex</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_curAnim</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">frames</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">_curFrame</span><span class="ActionScriptBracket/Brace">]</span>;
+                    <span class="ActionScriptDefault_Text">dirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+                    <span class="ActionScriptReserved">return</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">log</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"WARNING: No animation called \""</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">AnimName</span><span class="ActionScriptOperator">+</span><span class="ActionScriptString">"\""</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Tell the sprite to change to a random frame of animation
+         * Useful for instantiating particles or other weird things.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">randomFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_curAnim</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_curIndex</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">frameWidth</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">dirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Helper function that just sets origin to (0,0)
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">setOriginToCorner</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">origin</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">origin</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> 0;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Helper function that adjusts the offset automatically to center the bounding box within the graphic.
+         * 
+         * @param    AdjustPosition        Adjusts the actual X and Y position just once to match the offset change. Default is false.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">centerOffsets</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">AdjustPosition</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">offset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">frameWidth</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>0.5;
+            <span class="ActionScriptDefault_Text">offset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">frameHeight</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>0.5;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">AdjustPosition</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">offset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+                <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">offset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">replaceColor</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">NewColor</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">FetchPositions</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Array</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">positions</span>:<span class="ActionScriptDefault_Text">Array</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FetchPositions</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">positions</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">row</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">column</span>:<span class="ActionScriptDefault_Text">uint</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">rows</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">columns</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">row</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">rows</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">column</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">column</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">columns</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getPixel32</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">column</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">row</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">Color</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setPixel32</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">column</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">row</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">NewColor</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FetchPositions</span><span class="ActionScriptBracket/Brace">)</span>
+                            <span class="ActionScriptDefault_Text">positions</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">push</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">column</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">row</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">dirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                    <span class="ActionScriptDefault_Text">column</span><span class="ActionScriptOperator">++</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">row</span><span class="ActionScriptOperator">++</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">positions</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Set &lt;code&gt;pixels&lt;/code&gt; to any &lt;code&gt;BitmapData&lt;/code&gt; object.
+         * Automatically adjust graphic size and render helpers.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">pixels</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">BitmapData</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_pixels</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * @private
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">pixels</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Pixels</span>:<span class="ActionScriptDefault_Text">BitmapData</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_pixels</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Pixels</span>;
+            <span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frameWidth</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frameHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+            <span class="ActionScriptDefault_Text">resetHelpers</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Set &lt;code&gt;facing&lt;/code&gt; using &lt;code&gt;FlxSprite.LEFT&lt;/code&gt;,&lt;code&gt;RIGHT&lt;/code&gt;,
+         * &lt;code&gt;UP&lt;/code&gt;, and &lt;code&gt;DOWN&lt;/code&gt; to take advantage of
+         * flipped sprites and/or just track player orientation more easily.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">facing</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">uint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_facing</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * @private
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">facing</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Direction</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_facing</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptDefault_Text">Direction</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">dirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">_facing</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Direction</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Set &lt;code&gt;alpha&lt;/code&gt; to a number between 0 and 1 to change the opacity of the sprite.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_alpha</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * @private
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Alpha</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Alpha</span> <span class="ActionScriptOperator">&gt;</span> 1<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Alpha</span> <span class="ActionScriptOperator">=</span> 1;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Alpha</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Alpha</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Alpha</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">_alpha</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptDefault_Text">_alpha</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Alpha</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_alpha</span> <span class="ActionScriptOperator">!=</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_color</span> <span class="ActionScriptOperator">!=</span> 0x00ffffff<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_colorTransform</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">ColorTransform</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_color</span><span class="ActionScriptOperator">&gt;&gt;</span>16<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>0.00392<span class="ActionScriptOperator">,</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_color</span><span class="ActionScriptOperator">&gt;&gt;</span>8<span class="ActionScriptOperator">&amp;</span>0xff<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>0.00392<span class="ActionScriptOperator">,</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_color</span><span class="ActionScriptOperator">&amp;</span>0xff<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>0.00392<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_alpha</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">_colorTransform</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">dirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Set &lt;code&gt;color&lt;/code&gt; to a number in this format: 0xRRGGBB.
+         * &lt;code&gt;color&lt;/code&gt; IGNORES ALPHA.  To change the opacity use &lt;code&gt;alpha&lt;/code&gt;.
+         * Tints the whole sprite to be this color (similar to OpenGL vertex colors).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">color</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">uint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_color</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * @private
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">color</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">Color</span> <span class="ActionScriptOperator">&amp;=</span> 0x00ffffff;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_color</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">Color</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptDefault_Text">_color</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Color</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_alpha</span> <span class="ActionScriptOperator">!=</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_color</span> <span class="ActionScriptOperator">!=</span> 0x00ffffff<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_colorTransform</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">ColorTransform</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_color</span><span class="ActionScriptOperator">&gt;&gt;</span>16<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>0.00392<span class="ActionScriptOperator">,</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_color</span><span class="ActionScriptOperator">&gt;&gt;</span>8<span class="ActionScriptOperator">&amp;</span>0xff<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>0.00392<span class="ActionScriptOperator">,</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_color</span><span class="ActionScriptOperator">&amp;</span>0xff<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>0.00392<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_alpha</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">_colorTransform</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">dirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Tell the sprite to change to a specific frame of animation.
+         * 
+         * @param    Frame    The frame you want to display.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">frame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">uint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_curIndex</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * @private
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">frame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Frame</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_curAnim</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_curIndex</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Frame</span>;
+            <span class="ActionScriptDefault_Text">dirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Check and see if this object is currently on screen.
+         * Differs from &lt;code&gt;FlxObject&lt;/code&gt;'s implementation
+         * in that it takes the actual graphic into account,
+         * not just the hitbox or bounding box or whatever.
+         * 
+         * @param    Camera        Specify which game camera you want.  If null getScreenXY() will just grab the first global camera.
+         * 
+         * @return    Whether the object is on screen or not.
+         */</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onScreen</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span>:<span class="ActionScriptDefault_Text">FlxCamera</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Camera</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">camera</span>;
+            <span class="ActionScriptDefault_Text">getScreenXY</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">offset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+            <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">offset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_bakedRotation</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">==</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">==</span> 1<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">frameWidth</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">frameHeight</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">halfWidth</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frameWidth</span><span class="ActionScriptOperator">/</span>2;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">halfHeight</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frameHeight</span><span class="ActionScriptOperator">/</span>2;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">absScaleX</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">&gt;</span>0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>:<span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">absScaleY</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptOperator">&gt;</span>0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>:<span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">radius</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Math</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">sqrt</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">halfWidth</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">halfWidth</span><span class="ActionScriptOperator">+</span><span class="ActionScriptDefault_Text">halfHeight</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">halfHeight</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">absScaleX</span> <span class="ActionScriptOperator">&gt;=</span> <span class="ActionScriptDefault_Text">absScaleY</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">absScaleX</span>:<span class="ActionScriptDefault_Text">absScaleY</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">halfWidth</span>;
+            <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">halfHeight</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">radius</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">radius</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">radius</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">radius</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Checks to see if a point in 2D world space overlaps this &lt;code&gt;FlxSprite&lt;/code&gt; object's current displayed pixels.
+         * This check is ALWAYS made in screen space, and always takes scroll factors into account.
+         * 
+         * @param    Point        The point in world space you want to check.
+         * @param    Mask        Used in the pixel hit test to determine what counts as solid.
+         * @param    Camera        Specify which game camera you want.  If null getScreenXY() will just grab the first global camera.
+         * 
+         * @return    Whether or not the point overlaps this object.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">pixelsOverlapPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Point</span>:<span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Mask</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0xFF<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Camera</span>:<span class="ActionScriptDefault_Text">FlxCamera</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Camera</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">camera</span>;
+            <span class="ActionScriptDefault_Text">getScreenXY</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">offset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+            <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">offset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+            <span class="ActionScriptDefault_Text">_flashPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+            <span class="ActionScriptDefault_Text">_flashPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">framePixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">hitTest</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flashPointZero</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Mask</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashPoint</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal function to update the current animation frame.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">calcFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">indexX</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_curIndex</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">frameWidth</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">indexY</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+
+            <span class="ActionScriptComment">//Handle sprite sheets
+</span>            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">widthHelper</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_flipped</span><span class="ActionScriptOperator">?</span><span class="ActionScriptDefault_Text">_flipped</span>:<span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">indexX</span> <span class="ActionScriptOperator">&gt;=</span> <span class="ActionScriptDefault_Text">widthHelper</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">indexY</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">indexX</span><span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">widthHelper</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">frameHeight</span>;
+                <span class="ActionScriptDefault_Text">indexX</span> <span class="ActionScriptOperator">%=</span> <span class="ActionScriptDefault_Text">widthHelper</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//handle reversed sprites
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flipped</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_facing</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">LEFT</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">indexX</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flipped</span><span class="ActionScriptOperator">&lt;&lt;</span>1<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">indexX</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">frameWidth</span>;
+            
+            <span class="ActionScriptComment">//Update display bitmap
+</span>            <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">indexX</span>;
+            <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">indexY</span>;
+            <span class="ActionScriptDefault_Text">framePixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyPixels</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_pixels</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashPointZero</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_colorTransform</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">framePixels</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">colorTransform</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_colorTransform</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_callback</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_callback</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_curAnim</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_curAnim</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_curFrame</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_curIndex</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">dirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

@@ -1,0 +1,392 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FlxEmitter.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span>
+<span class="ActionScriptBracket/Brace">{</span>
+
+    <span class="ActionScriptASDoc">/**
+     * &lt;code&gt;FlxEmitter&lt;/code&gt; is a lightweight particle emitter.
+     * It can be used for one-time explosions or for
+     * continuous fx like rain and fire.  &lt;code&gt;FlxEmitter&lt;/code&gt;
+     * is not optimized or anything; all it does is launch
+     * &lt;code&gt;FlxParticle&lt;/code&gt; objects out at set intervals
+     * by setting their positions and velocities accordingly.
+     * It is easy to use and relatively efficient,
+     * relying on &lt;code&gt;FlxGroup&lt;/code&gt;'s RECYCLE POWERS.
+     * 
+     * @author    Adam Atomic
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">FlxEmitter</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">FlxGroup</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/**
+         * The X position of the top left corner of the emitter in world space.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">x</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * The Y position of the top left corner of emitter in world space.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">y</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * The width of the emitter.  Particles can be randomly generated from anywhere within this box.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">width</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * The height of the emitter.  Particles can be randomly generated from anywhere within this box.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">height</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * The minimum possible velocity of a particle.
+         * The default value is (-100,-100).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">minParticleSpeed</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+        <span class="ActionScriptASDoc">/**
+         * The maximum possible velocity of a particle.
+         * The default value is (100,100).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">maxParticleSpeed</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+        <span class="ActionScriptASDoc">/**
+         * The X and Y drag component of particles launched from the emitter.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">particleDrag</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+        <span class="ActionScriptASDoc">/**
+         * The minimum possible angular velocity of a particle.  The default value is -360.
+         * NOTE: rotating particles are more expensive to draw than non-rotating ones!
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">minRotation</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * The maximum possible angular velocity of a particle.  The default value is 360.
+         * NOTE: rotating particles are more expensive to draw than non-rotating ones!
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">maxRotation</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Sets the &lt;code&gt;acceleration.y&lt;/code&gt; member of each particle to this value on launch.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">gravity</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Determines whether the emitter is currently emitting particles.
+         * It is totally safe to directly toggle this.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">on</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/**
+         * How often a particle is emitted (if emitter is started with Explode == false).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">frequency</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * How long each particle lives once it is emitted.
+         * Set lifespan to 'zero' for particles to live forever.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">lifespan</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * How much each particle should bounce.  1 = full bounce, 0 = no bounce.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">bounce</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Set your own particle class type here.
+         * Default is &lt;code&gt;FlxParticle&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">particleClass</span>:<span class="ActionScriptDefault_Text">Class</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal helper for deciding how many particles to launch.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_quantity</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal helper for the style of particle emission (all at once, or one at a time).
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_explode</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal helper for deciding when to launch particles or kill them.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_timer</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal counter for figuring out how many particles to launch.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_counter</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal point object, handy for reusing for memory mgmt purposes.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_point</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Creates a new &lt;code&gt;FlxEmitter&lt;/code&gt; object at a specific position.
+         * Does NOT automatically generate or attach particles!
+         * 
+         * @param    X        The X position of the emitter.
+         * @param    Y        The Y position of the emitter.
+         * @param    Size    Optional, specifies a maximum capacity for this emitter.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">FlxEmitter</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Y</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Size</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Size</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">X</span>;
+            <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Y</span>;
+            <span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">minParticleSpeed</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">-</span>100<span class="ActionScriptOperator">,</span><span class="ActionScriptOperator">-</span>100<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">maxParticleSpeed</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span>100<span class="ActionScriptOperator">,</span>100<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">minRotation</span> <span class="ActionScriptOperator">=</span> -360;
+            <span class="ActionScriptDefault_Text">maxRotation</span> <span class="ActionScriptOperator">=</span> 360;
+            <span class="ActionScriptDefault_Text">gravity</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">particleClass</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">particleDrag</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">frequency</span> <span class="ActionScriptOperator">=</span> 0.1;
+            <span class="ActionScriptDefault_Text">lifespan</span> <span class="ActionScriptOperator">=</span> 3;
+            <span class="ActionScriptDefault_Text">bounce</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_quantity</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_counter</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_explode</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">on</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">_point</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Clean up memory.
+         */</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">minParticleSpeed</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">maxParticleSpeed</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">particleDrag</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">particleClass</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_point</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * This function generates a new array of particle sprites to attach to the emitter.
+         * 
+         * @param    Graphics        If you opted to not pre-configure an array of FlxSprite objects, you can simply pass in a particle image or sprite sheet.
+         * @param    Quantity        The number of particles to generate when using the "create from image" option.
+         * @param    BakedRotations    How many frames of baked rotation to use (boosts performance).  Set to zero to not use baked rotations.
+         * @param    Multiple        Whether the image in the Graphics param is a single particle or a bunch of particles (if it's a bunch, they need to be square!).
+         * @param    Collide            Whether the particles should be flagged as not 'dead' (non-colliding particles are higher performance).  0 means no collisions, 0-1 controls scale of particle's bounding box.
+         * 
+         * @return    This FlxEmitter instance (nice for chaining stuff together, if you're into that).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">makeParticles</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Graphics</span>:<span class="ActionScriptDefault_Text">Class</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Quantity</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>50<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">BakedRotations</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>16<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Multiple</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Collide</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0.8<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">FlxEmitter</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">maxSize</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Quantity</span>;
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">totalFrames</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 1;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Multiple</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span> 
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sprite</span>:<span class="ActionScriptDefault_Text">FlxSprite</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxSprite</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">sprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">loadGraphic</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Graphics</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">totalFrames</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">sprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">frames</span>;
+                <span class="ActionScriptDefault_Text">sprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">randomFrame</span>:<span class="ActionScriptDefault_Text">uint</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">particle</span>:<span class="ActionScriptDefault_Text">FlxParticle</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">Quantity</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">particleClass</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">particle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxParticle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">else</span>
+                    <span class="ActionScriptDefault_Text">particle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">particleClass</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Multiple</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">randomFrame</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">totalFrames</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">BakedRotations</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">loadRotatedGraphic</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Graphics</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">BakedRotations</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">randomFrame</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">else</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">loadGraphic</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Graphics</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">frame</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">randomFrame</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">BakedRotations</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">loadRotatedGraphic</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Graphics</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">BakedRotations</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">else</span>
+                        <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">loadGraphic</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Graphics</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Collide</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">*=</span> <span class="ActionScriptDefault_Text">Collide</span>;
+                    <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">*=</span> <span class="ActionScriptDefault_Text">Collide</span>;
+                    <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">centerOffsets</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">else</span>
+                    <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">allowCollisions</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxObject</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">NONE</span>;
+                <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">exists</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                <span class="ActionScriptDefault_Text">add</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">this</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Called automatically by the game loop, decides when to launch particles and when to "die".
+         */</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">on</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_explode</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">on</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                    <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+                    <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">l</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_quantity</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">l</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">l</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">length</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">l</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">length</span>;
+                    <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">l</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">emitParticle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">++</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                    <span class="ActionScriptDefault_Text">_quantity</span> <span class="ActionScriptOperator">=</span> 0;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_timer</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">elapsed</span>;
+                    <span class="ActionScriptReserved">while</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">frequency</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_timer</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">frequency</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">on</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">_timer</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">frequency</span>;
+                        <span class="ActionScriptDefault_Text">emitParticle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_quantity</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">++</span><span class="ActionScriptDefault_Text">_counter</span> <span class="ActionScriptOperator">&gt;=</span> <span class="ActionScriptDefault_Text">_quantity</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptBracket/Brace">{</span>
+                            <span class="ActionScriptDefault_Text">on</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                            <span class="ActionScriptDefault_Text">_quantity</span> <span class="ActionScriptOperator">=</span> 0;
+                        <span class="ActionScriptBracket/Brace">}</span>
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Call this function to turn off all the particles and the emitter.
+         */</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">kill</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">on</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">kill</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Call this function to start emitting particles.
+         * 
+         * @param    Explode        Whether the particles should all burst out at once.
+         * @param    Lifespan    How long each particle lives once emitted. 0 = forever.
+         * @param    Frequency    Ignored if Explode is set to true. Frequency is how often to emit a particle. 0 = never emit, 0.1 = 1 particle every 0.1 seconds, 5 = 1 particle every 5 seconds.
+         * @param    Quantity    How many particles to launch. 0 = "all of the particles".
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">start</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Explode</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Lifespan</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Frequency</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0.1<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Quantity</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">revive</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">visible</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">on</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            
+            <span class="ActionScriptDefault_Text">_explode</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Explode</span>;
+            <span class="ActionScriptDefault_Text">lifespan</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Lifespan</span>;
+            <span class="ActionScriptDefault_Text">frequency</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Frequency</span>;
+            <span class="ActionScriptDefault_Text">_quantity</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">Quantity</span>;
+            
+            <span class="ActionScriptDefault_Text">_counter</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_timer</span> <span class="ActionScriptOperator">=</span> 0;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * This function can be used both internally and externally to emit the next particle.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">emitParticle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">particle</span>:<span class="ActionScriptDefault_Text">FlxParticle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">recycle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxParticle</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">FlxParticle</span>;
+            <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">lifespan</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">lifespan</span>;
+            <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">elasticity</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">bounce</span>;
+            <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">reset</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">&gt;&gt;</span>1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">&gt;&gt;</span>1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">minParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptDefault_Text">maxParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">velocity</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">minParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">maxParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">minParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">velocity</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">minParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">minParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptDefault_Text">maxParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">velocity</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">minParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">maxParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">minParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">velocity</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">minParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+            <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">acceleration</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">gravity</span>;
+            
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">minRotation</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptDefault_Text">maxRotation</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">angularVelocity</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">minRotation</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">maxRotation</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">minRotation</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">angularVelocity</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">minRotation</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">angularVelocity</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">angle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>360<span class="ActionScriptOperator">-</span>180;
+            
+            <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">drag</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">particleDrag</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+            <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">drag</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">particleDrag</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+            <span class="ActionScriptDefault_Text">particle</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onEmit</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * A more compact way of setting the width and height of the emitter.
+         * 
+         * @param    Width    The desired width of the emitter (particles are spawned randomly within these dimensions).
+         * @param    Height    The desired height of the emitter.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">setSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Width</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Height</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Width</span>;
+            <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Height</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * A more compact way of setting the X velocity range of the emitter.
+         * 
+         * @param    Min        The minimum value for this range.
+         * @param    Max        The maximum value for this range.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">setXSpeed</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Min</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Max</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">minParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Min</span>;
+            <span class="ActionScriptDefault_Text">maxParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Max</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * A more compact way of setting the Y velocity range of the emitter.
+         * 
+         * @param    Min        The minimum value for this range.
+         * @param    Max        The maximum value for this range.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">setYSpeed</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Min</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Max</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">minParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Min</span>;
+            <span class="ActionScriptDefault_Text">maxParticleSpeed</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Max</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * A more compact way of setting the angular velocity constraints of the emitter.
+         * 
+         * @param    Min        The minimum value for this range.
+         * @param    Max        The maximum value for this range.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">setRotation</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Min</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Max</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">minRotation</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Min</span>;
+            <span class="ActionScriptDefault_Text">maxRotation</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Max</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Change the emitter's midpoint to match the midpoint of a &lt;code&gt;FlxObject&lt;/code&gt;.
+         * 
+         * @param    Object        The &lt;code&gt;FlxObject&lt;/code&gt; that you want to sync up with.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">at</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Object</span>:<span class="ActionScriptDefault_Text">FlxObject</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getMidpoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">&gt;&gt;</span>1<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">&gt;&gt;</span>1<span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span>
+</pre></body>
+</html>

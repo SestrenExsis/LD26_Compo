@@ -1,0 +1,717 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FlxCamera.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">org</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">flixel</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Bitmap</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">BitmapData</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Sprite</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ColorTransform</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Point</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Rectangle</span>;
+
+    <span class="ActionScriptASDoc">/**
+     * The camera class is used to display the game's visuals in the Flash player.
+     * By default one camera is created automatically, that is the same size as the Flash player.
+     * You can add more cameras or even replace the main camera using utilities in &lt;code&gt;FlxG&lt;/code&gt;.
+     * 
+     * @author Adam Atomic
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">FlxCamera</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">FlxBasic</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/**
+         * Camera "follow" style preset: camera has no deadzone, just tracks the focus object directly.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">STYLE_LOCKON</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+        <span class="ActionScriptASDoc">/**
+         * Camera "follow" style preset: camera deadzone is narrow but tall.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">STYLE_PLATFORMER</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 1;
+        <span class="ActionScriptASDoc">/**
+         * Camera "follow" style preset: camera deadzone is a medium-size square around the focus object.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">STYLE_TOPDOWN</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 2;
+        <span class="ActionScriptASDoc">/**
+         * Camera "follow" style preset: camera deadzone is a small square around the focus object.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">STYLE_TOPDOWN_TIGHT</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 3;
+        
+        <span class="ActionScriptASDoc">/**
+         * Camera "shake" effect preset: shake camera on both the X and Y axes.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">SHAKE_BOTH_AXES</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+        <span class="ActionScriptASDoc">/**
+         * Camera "shake" effect preset: shake camera on the X axis only.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">SHAKE_HORIZONTAL_ONLY</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 1;
+        <span class="ActionScriptASDoc">/**
+         * Camera "shake" effect preset: shake camera on the Y axis only.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">SHAKE_VERTICAL_ONLY</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 2;
+        
+        <span class="ActionScriptASDoc">/**
+         * While you can alter the zoom of each camera after the fact,
+         * this variable determines what value the camera will start at when created.
+         */</span>
+        <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">defaultZoom</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * The X position of this camera's display.  Zoom does NOT affect this number.
+         * Measured in pixels from the left side of the flash window.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">x</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * The Y position of this camera's display.  Zoom does NOT affect this number.
+         * Measured in pixels from the top of the flash window.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">y</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * How wide the camera display is, in game pixels.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">width</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * How tall the camera display is, in game pixels.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">height</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Tells the camera to follow this &lt;code&gt;FlxObject&lt;/code&gt; object around.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">target</span>:<span class="ActionScriptDefault_Text">FlxObject</span>;
+        <span class="ActionScriptASDoc">/**
+         * You can assign a "dead zone" to the camera in order to better control its movement.
+         * The camera will always keep the focus object inside the dead zone,
+         * unless it is bumping up against the bounds rectangle's edges.
+         * The deadzone's coordinates are measured from the camera's upper left corner in game pixels.
+         * For rapid prototyping, you can use the preset deadzones (e.g. &lt;code&gt;STYLE_PLATFORMER&lt;/code&gt;) with &lt;code&gt;follow()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">deadzone</span>:<span class="ActionScriptDefault_Text">FlxRect</span>;
+        <span class="ActionScriptASDoc">/**
+         * The edges of the camera's range, i.e. where to stop scrolling.
+         * Measured in game pixels and world coordinates.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">bounds</span>:<span class="ActionScriptDefault_Text">FlxRect</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Stores the basic parallax scrolling values.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">scroll</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+        <span class="ActionScriptASDoc">/**
+         * The actual bitmap data of the camera display itself.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">buffer</span>:<span class="ActionScriptDefault_Text">BitmapData</span>;
+        <span class="ActionScriptASDoc">/**
+         * The natural background color of the camera. Defaults to FlxG.bgColor.
+         * NOTE: can be transparent for crazy FX!
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">bgColor</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Sometimes it's easier to just work with a &lt;code&gt;FlxSprite&lt;/code&gt; than it is to work
+         * directly with the &lt;code&gt;BitmapData&lt;/code&gt; buffer.  This sprite reference will
+         * allow you to do exactly that.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">screen</span>:<span class="ActionScriptDefault_Text">FlxSprite</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Indicates how far the camera is zoomed in.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_zoom</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, to help avoid costly allocations.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_point</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, help with color transforming the flash bitmap.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_color</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to render buffer to screen space.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_flashBitmap</span>:<span class="ActionScriptDefault_Text">Bitmap</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to render buffer to screen space.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_flashSprite</span>:<span class="ActionScriptDefault_Text">Sprite</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to render buffer to screen space.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_flashOffsetX</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to render buffer to screen space.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_flashOffsetY</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to render buffer to screen space.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_flashRect</span>:<span class="ActionScriptDefault_Text">Rectangle</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to render buffer to screen space.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_flashPoint</span>:<span class="ActionScriptDefault_Text">Point</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to control the "flash" special effect.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fxFlashColor</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to control the "flash" special effect.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fxFlashDuration</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to control the "flash" special effect.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fxFlashComplete</span>:<span class="ActionScriptDefault_Text">Function</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to control the "flash" special effect.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fxFlashAlpha</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to control the "fade" special effect.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fxFadeColor</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to control the "fade" special effect.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fxFadeDuration</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to control the "fade" special effect.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fxFadeComplete</span>:<span class="ActionScriptDefault_Text">Function</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to control the "fade" special effect.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fxFadeAlpha</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to control the "shake" special effect.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fxShakeIntensity</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to control the "shake" special effect.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fxShakeDuration</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to control the "shake" special effect.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fxShakeComplete</span>:<span class="ActionScriptDefault_Text">Function</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to control the "shake" special effect.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fxShakeOffset</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal, used to control the "shake" special effect.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fxShakeDirection</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/**
+         * Internal helper variable for doing better wipes/fills between renders.
+         */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_fill</span>:<span class="ActionScriptDefault_Text">BitmapData</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Instantiates a new camera at the specified location, with the specified size and zoom level.
+         * 
+         * @param X            X location of the camera's display in pixels. Uses native, 1:1 resolution, ignores zoom.
+         * @param Y            Y location of the camera's display in pixels. Uses native, 1:1 resolution, ignores zoom.
+         * @param Width        The width of the camera display in pixels.
+         * @param Height    The height of the camera display in pixels.
+         * @param Zoom        The initial zoom level of the camera.  A zoom level of 2 will make all pixels display at 2x resolution.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">FlxCamera</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Y</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Width</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Height</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Zoom</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">X</span>;
+            <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Y</span>;
+            <span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Width</span>;
+            <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Height</span>;
+            <span class="ActionScriptDefault_Text">target</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">deadzone</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">scroll</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_point</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">bounds</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">screen</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxSprite</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">screen</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">makeGraphic</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">,</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">screen</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setOriginToCorner</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">buffer</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">screen</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">pixels</span>;
+            <span class="ActionScriptDefault_Text">bgColor</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bgColor</span>;
+            <span class="ActionScriptDefault_Text">_color</span> <span class="ActionScriptOperator">=</span> 0xffffff;
+
+            <span class="ActionScriptDefault_Text">_flashBitmap</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Bitmap</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">buffer</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_flashBitmap</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">*</span>0.5;
+            <span class="ActionScriptDefault_Text">_flashBitmap</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">*</span>0.5;
+            <span class="ActionScriptDefault_Text">_flashSprite</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Sprite</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">zoom</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Zoom</span>; <span class="ActionScriptComment">//sets the scale of flash sprite, which in turn loads flashoffset values
+</span>            <span class="ActionScriptDefault_Text">_flashOffsetX</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">*</span>0.5<span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">zoom</span>;
+            <span class="ActionScriptDefault_Text">_flashOffsetY</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">*</span>0.5<span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">zoom</span>;
+            <span class="ActionScriptDefault_Text">_flashSprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_flashOffsetX</span>;
+            <span class="ActionScriptDefault_Text">_flashSprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_flashOffsetY</span>;
+            <span class="ActionScriptDefault_Text">_flashSprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addChild</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flashBitmap</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_flashRect</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span>0<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_flashPoint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptDefault_Text">_fxFlashColor</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_fxFlashDuration</span> <span class="ActionScriptOperator">=</span> 0.0;
+            <span class="ActionScriptDefault_Text">_fxFlashComplete</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_fxFlashAlpha</span> <span class="ActionScriptOperator">=</span> 0.0;
+            
+            <span class="ActionScriptDefault_Text">_fxFadeColor</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_fxFadeDuration</span> <span class="ActionScriptOperator">=</span> 0.0;
+            <span class="ActionScriptDefault_Text">_fxFadeComplete</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_fxFadeAlpha</span> <span class="ActionScriptOperator">=</span> 0.0;
+            
+            <span class="ActionScriptDefault_Text">_fxShakeIntensity</span> <span class="ActionScriptOperator">=</span> 0.0;
+            <span class="ActionScriptDefault_Text">_fxShakeDuration</span> <span class="ActionScriptOperator">=</span> 0.0;
+            <span class="ActionScriptDefault_Text">_fxShakeComplete</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_fxShakeOffset</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_fxShakeDirection</span> <span class="ActionScriptOperator">=</span> 0;
+            
+            <span class="ActionScriptDefault_Text">_fill</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">BitmapData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span>0<span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Clean up memory.
+         */</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">screen</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">destroy</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">screen</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">target</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">scroll</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">deadzone</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">bounds</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">buffer</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_flashBitmap</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_flashRect</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_flashPoint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_fxFlashComplete</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_fxFadeComplete</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_fxShakeComplete</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_fxShakeOffset</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">_fill</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Updates the camera scroll as well as special effects like screen-shake or fades.
+         */</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">//Either follow the object closely, 
+</span>            <span class="ActionScriptComment">//or doublecheck our deadzone and update accordingly.
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">deadzone</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">focusOn</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getMidpoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">edge</span>:<span class="ActionScriptDefault_Text">Number</span>;
+                    <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">targetX</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span>0.0000001:<span class="ActionScriptOperator">-</span>0.0000001<span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">targetY</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span>0.0000001:<span class="ActionScriptOperator">-</span>0.0000001<span class="ActionScriptBracket/Brace">)</span>;
+                    
+                    <span class="ActionScriptDefault_Text">edge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">targetX</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">deadzone</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">edge</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">edge</span>;
+                    <span class="ActionScriptDefault_Text">edge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">targetX</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">deadzone</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">deadzone</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">edge</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">edge</span>;
+                    
+                    <span class="ActionScriptDefault_Text">edge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">targetY</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">deadzone</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">edge</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">edge</span>;
+                    <span class="ActionScriptDefault_Text">edge</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">targetY</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">deadzone</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">deadzone</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">edge</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">edge</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//Make sure we didn't go outside the camera's bounds
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">bounds</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">left</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">left</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">right</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">right</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">width</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">top</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">top</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bottom</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bottom</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">height</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//Update the "flash" special effect
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxFlashAlpha</span> <span class="ActionScriptOperator">&gt;</span> 0.0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_fxFlashAlpha</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">elapsed</span><span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">_fxFlashDuration</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxFlashAlpha</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxFlashComplete</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">_fxFlashComplete</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//Update the "fade" special effect
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxFadeAlpha</span> <span class="ActionScriptOperator">&gt;</span> 0.0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxFadeAlpha</span> <span class="ActionScriptOperator">&lt;</span> 1.0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_fxFadeAlpha</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">elapsed</span><span class="ActionScriptOperator">/</span><span class="ActionScriptDefault_Text">_fxFadeDuration</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxFadeAlpha</span> <span class="ActionScriptOperator">&gt;=</span> 1.0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_fxFadeAlpha</span> <span class="ActionScriptOperator">=</span> 1.0;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxFadeComplete</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">_fxFadeComplete</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//Update the "shake" special effect
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxShakeDuration</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_fxShakeDuration</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">elapsed</span>;
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxShakeDuration</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_fxShakeOffset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">make</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxShakeComplete</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">_fxShakeComplete</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxShakeDirection</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">SHAKE_BOTH_AXES</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxShakeDirection</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">SHAKE_HORIZONTAL_ONLY</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">_fxShakeOffset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">_fxShakeIntensity</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">*</span>2<span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">_fxShakeIntensity</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">_zoom</span>;
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxShakeDirection</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">SHAKE_BOTH_AXES</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxShakeDirection</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">SHAKE_VERTICAL_ONLY</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">_fxShakeOffset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">random</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">_fxShakeIntensity</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">*</span>2<span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">_fxShakeIntensity</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">_zoom</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Tells this camera object what &lt;code&gt;FlxObject&lt;/code&gt; to track.
+         * 
+         * @param    Target        The object you want the camera to track.  Set to null to not follow anything.
+         * @param    Style        Leverage one of the existing "deadzone" presets.  If you use a custom deadzone, ignore this parameter and manually specify the deadzone after calling &lt;code&gt;follow()&lt;/code&gt;.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">follow</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Target</span>:<span class="ActionScriptDefault_Text">FlxObject</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Style</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span><span class="ActionScriptDefault_Text">STYLE_LOCKON</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">target</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Target</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">helper</span>:<span class="ActionScriptDefault_Text">Number</span>;
+            <span class="ActionScriptReserved">switch</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Style</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">case</span> <span class="ActionScriptDefault_Text">STYLE_PLATFORMER</span>:
+                    <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">w</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">/</span>8;
+                    <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">h</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">/</span>3;
+                    <span class="ActionScriptDefault_Text">deadzone</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">w</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">/</span>2<span class="ActionScriptOperator">,</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">h</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">/</span>2 <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">h</span><span class="ActionScriptOperator">*</span>0.25<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">w</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">h</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">break</span>;
+                <span class="ActionScriptReserved">case</span> <span class="ActionScriptDefault_Text">STYLE_TOPDOWN</span>:
+                    <span class="ActionScriptDefault_Text">helper</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxU</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">max</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">/</span>4;
+                    <span class="ActionScriptDefault_Text">deadzone</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">/</span>2<span class="ActionScriptOperator">,</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">/</span>2<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">break</span>;
+                <span class="ActionScriptReserved">case</span> <span class="ActionScriptDefault_Text">STYLE_TOPDOWN_TIGHT</span>:
+                    <span class="ActionScriptDefault_Text">helper</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">FlxU</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">max</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">/</span>8;
+                    <span class="ActionScriptDefault_Text">deadzone</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">/</span>2<span class="ActionScriptOperator">,</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">/</span>2<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">helper</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">break</span>;
+                <span class="ActionScriptReserved">case</span> <span class="ActionScriptDefault_Text">STYLE_LOCKON</span>:
+                <span class="ActionScriptReserved">default</span>:
+                    <span class="ActionScriptDefault_Text">deadzone</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+                    <span class="ActionScriptReserved">break</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Move the camera focus to this location instantly.
+         * 
+         * @param    Point        Where you want the camera to focus.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">focusOn</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Point</span>:<span class="ActionScriptDefault_Text">FlxPoint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span>0.0000001:<span class="ActionScriptOperator">-</span>0.0000001;
+            <span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span>0.0000001:<span class="ActionScriptOperator">-</span>0.0000001;
+            <span class="ActionScriptDefault_Text">scroll</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">make</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">*</span>0.5<span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">*</span>0.5<span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Specify the boundaries of the level or where the camera is allowed to move.
+         * 
+         * @param    X                The smallest X value of your level (usually 0).
+         * @param    Y                The smallest Y value of your level (usually 0).
+         * @param    Width            The largest X value of your level (usually the level width).
+         * @param    Height            The largest Y value of your level (usually the level height).
+         * @param    UpdateWorld        Whether the global quad-tree's dimensions should be updated to match (default: false).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">setBounds</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Y</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Width</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Height</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">UpdateWorld</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">bounds</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">bounds</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">make</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Y</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Width</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Height</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">UpdateWorld</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">FlxG</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">worldBounds</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyFrom</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * The screen is filled with this color and gradually returns to normal.
+         * 
+         * @param    Color        The color you want to use.
+         * @param    Duration    How long it takes for the flash to fade.
+         * @param    OnComplete    A function you want to run when the flash finishes.
+         * @param    Force        Force the effect to reset.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0xffffffff<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Duration</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">OnComplete</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Force</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">Force</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxFlashAlpha</span> <span class="ActionScriptOperator">&gt;</span> 0.0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptDefault_Text">_fxFlashColor</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Color</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Duration</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Duration</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">MIN_VALUE</span>;
+            <span class="ActionScriptDefault_Text">_fxFlashDuration</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Duration</span>;
+            <span class="ActionScriptDefault_Text">_fxFlashComplete</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">OnComplete</span>;
+            <span class="ActionScriptDefault_Text">_fxFlashAlpha</span> <span class="ActionScriptOperator">=</span> 1.0;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * The screen is gradually filled with this color.
+         * 
+         * @param    Color        The color you want to use.
+         * @param    Duration    How long it takes for the fade to finish.
+         * @param    OnComplete    A function you want to run when the fade finishes.
+         * @param    Force        Force the effect to reset.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fade</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0xff000000<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Duration</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">OnComplete</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Force</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">Force</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxFadeAlpha</span> <span class="ActionScriptOperator">&gt;</span> 0.0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptDefault_Text">_fxFadeColor</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Color</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Duration</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">Duration</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">MIN_VALUE</span>;
+            <span class="ActionScriptDefault_Text">_fxFadeDuration</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Duration</span>;
+            <span class="ActionScriptDefault_Text">_fxFadeComplete</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">OnComplete</span>;
+            <span class="ActionScriptDefault_Text">_fxFadeAlpha</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">MIN_VALUE</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * A simple screen-shake effect.
+         * 
+         * @param    Intensity    Percentage of screen size representing the maximum distance that the screen can move while shaking.
+         * @param    Duration    The length in seconds that the shaking effect should last.
+         * @param    OnComplete    A function you want to run when the shake effect finishes.
+         * @param    Force        Force the effect to reset (default = true, unlike flash() and fade()!).
+         * @param    Direction    Whether to shake on both axes, just up and down, or just side to side (use class constants SHAKE_BOTH_AXES, SHAKE_VERTICAL_ONLY, or SHAKE_HORIZONTAL_ONLY).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">shake</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Intensity</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0.05<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Duration</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0.5<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">OnComplete</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Force</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Direction</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span><span class="ActionScriptDefault_Text">SHAKE_BOTH_AXES</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">Force</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxShakeOffset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxShakeOffset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptDefault_Text">_fxShakeIntensity</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Intensity</span>;
+            <span class="ActionScriptDefault_Text">_fxShakeDuration</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Duration</span>;
+            <span class="ActionScriptDefault_Text">_fxShakeComplete</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">OnComplete</span>;
+            <span class="ActionScriptDefault_Text">_fxShakeDirection</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Direction</span>;
+            <span class="ActionScriptDefault_Text">_fxShakeOffset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">make</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Just turns off all the camera effects instantly.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">stopFX</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_fxFlashAlpha</span> <span class="ActionScriptOperator">=</span> 0.0;
+            <span class="ActionScriptDefault_Text">_fxFadeAlpha</span> <span class="ActionScriptOperator">=</span> 0.0;
+            <span class="ActionScriptDefault_Text">_fxShakeDuration</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">_flashSprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">*</span>0.5;
+            <span class="ActionScriptDefault_Text">_flashSprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">*</span>0.5;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Copy the bounds, focus object, and deadzone info from an existing camera.
+         * 
+         * @param    Camera    The camera you want to copy from.
+         * 
+         * @return    A reference to this &lt;code&gt;FlxCamera&lt;/code&gt; object.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">copyFrom</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span>:<span class="ActionScriptDefault_Text">FlxCamera</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">FlxCamera</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bounds</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">bounds</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptReserved">else</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">bounds</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">bounds</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyFrom</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">target</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">target</span>;
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">deadzone</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">deadzone</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+                <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">deadzone</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                        <span class="ActionScriptDefault_Text">deadzone</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">FlxRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">deadzone</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyFrom</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">deadzone</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">this</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * The zoom level of this camera. 1 = 1:1, 2 = 2x zoom, etc.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">zoom</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_zoom</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * @private
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">zoom</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Zoom</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Zoom</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">_zoom</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">defaultZoom</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">_zoom</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Zoom</span>;
+            <span class="ActionScriptDefault_Text">setScale</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_zoom</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_zoom</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * The alpha value of this camera display (a Number between 0.0 and 1.0).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_flashBitmap</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">alpha</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * @private
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Alpha</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_flashBitmap</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">alpha</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Alpha</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * The angle of the camera display (in degrees).
+         * Currently yields weird display results,
+         * since cameras aren't nested in an extra display object yet.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">angle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_flashSprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rotation</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * @private
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">angle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Angle</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_flashSprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rotation</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Angle</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * The color tint of the camera display.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">color</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">uint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_color</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * @private
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">color</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_color</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Color</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">colorTransform</span>:<span class="ActionScriptDefault_Text">ColorTransform</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_flashBitmap</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">transform</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">colorTransform</span>;
+            <span class="ActionScriptDefault_Text">colorTransform</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">redMultiplier</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_color</span><span class="ActionScriptOperator">&gt;&gt;</span>16<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>0.00392;
+            <span class="ActionScriptDefault_Text">colorTransform</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greenMultiplier</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_color</span><span class="ActionScriptOperator">&gt;&gt;</span>8<span class="ActionScriptOperator">&amp;</span>0xff<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>0.00392;
+            <span class="ActionScriptDefault_Text">colorTransform</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">blueMultiplier</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_color</span><span class="ActionScriptOperator">&amp;</span>0xff<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span>0.00392;
+            <span class="ActionScriptDefault_Text">_flashBitmap</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">transform</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">colorTransform</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">colorTransform</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Whether the camera display is smooth and filtered, or chunky and pixelated.
+         * Default behavior is chunky-style.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">antialiasing</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_flashBitmap</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">smoothing</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * @private
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">antialiasing</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Antialiasing</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_flashBitmap</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">smoothing</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Antialiasing</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * The scale of the camera object, irrespective of zoom.
+         * Currently yields weird display results,
+         * since cameras aren't nested in an extra display object yet.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getScale</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">FlxPoint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_point</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">make</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flashSprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleX</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashSprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleY</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * @private
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">setScale</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">X</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Y</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_flashSprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleX</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">X</span>;
+            <span class="ActionScriptDefault_Text">_flashSprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleY</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Y</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Fetches a reference to the Flash &lt;code&gt;Sprite&lt;/code&gt; object
+         * that contains the camera display in the Flash display list.
+         * Uses include 3D projection, advanced display list modification, and more.
+         * NOTE: We don't recommend modifying this directly unless you are
+         * fairly experienced.  For simple changes to the camera display,
+         * like scaling, rotation, and color tinting, we recommend
+         * using the existing &lt;code&gt;FlxCamera&lt;/code&gt; variables.
+         * 
+         * @return    A Flash &lt;code&gt;Sprite&lt;/code&gt; object containing the camera display.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getContainerSprite</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Sprite</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_flashSprite</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Fill the camera with the specified color.
+         * 
+         * @param    Color        The color to fill with in 0xAARRGGBB hex format.
+         * @param    BlendAlpha    Whether to blend the alpha value or just wipe the previous contents.  Default is true.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fill</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">BlendAlpha</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_fill</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">fillRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">Color</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">buffer</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyPixels</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fill</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashRect</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">_flashPoint</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span><span class="ActionScriptDefault_Text">BlendAlpha</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Internal helper function, handles the actual drawing of all the special effects.
+         */</span>
+        <span class="ActionScriptReserved">internal</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">drawFX</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">alphaComponent</span>:<span class="ActionScriptDefault_Text">Number</span>;
+            
+            <span class="ActionScriptComment">//Draw the "flash" special effect onto the buffer
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxFlashAlpha</span> <span class="ActionScriptOperator">&gt;</span> 0.0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">alphaComponent</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_fxFlashColor</span><span class="ActionScriptOperator">&gt;&gt;</span>24;
+                <span class="ActionScriptDefault_Text">fill</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">alphaComponent</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span>0xff:<span class="ActionScriptDefault_Text">alphaComponent</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">_fxFlashAlpha</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">&lt;&lt;</span>24<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">+</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxFlashColor</span><span class="ActionScriptOperator">&amp;</span>0x00ffffff<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptComment">//Draw the "fade" special effect onto the buffer
+</span>            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxFadeAlpha</span> <span class="ActionScriptOperator">&gt;</span> 0.0<span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">alphaComponent</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_fxFadeColor</span><span class="ActionScriptOperator">&gt;&gt;</span>24;
+                <span class="ActionScriptDefault_Text">fill</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">alphaComponent</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">?</span>0xff:<span class="ActionScriptDefault_Text">alphaComponent</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">*</span><span class="ActionScriptDefault_Text">_fxFadeAlpha</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">&lt;&lt;</span>24<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">+</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxFadeColor</span><span class="ActionScriptOperator">&amp;</span>0x00ffffff<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptReserved">if</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxShakeOffset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_fxShakeOffset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">!=</span> 0<span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_flashSprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_flashOffsetX</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_fxShakeOffset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+                <span class="ActionScriptDefault_Text">_flashSprite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_flashOffsetY</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">_fxShakeOffset</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span>
+</pre></body>
+</html>

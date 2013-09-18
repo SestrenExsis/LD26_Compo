@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<index>
+	<title>Source of LD26_Compo</title>
+	<nodes>
+		<node icon="classpathIcon" label="[source path] Flixel" expanded="true">
+			<node label="docs">
+				<node label="images">
+					<node icon="imageIcon" label="AirIcon12x12.gif" url="source/[source path] Flixel/docs/images/AirIcon12x12.gif.html"/>
+					<node icon="imageIcon" label="collapsed.gif" url="source/[source path] Flixel/docs/images/collapsed.gif.html"/>
+					<node icon="imageIcon" label="detailHeaderRule.jpg" url="source/[source path] Flixel/docs/images/detailHeaderRule.jpg.html"/>
+					<node icon="imageIcon" label="detailSectionHeader.jpg" url="source/[source path] Flixel/docs/images/detailSectionHeader.jpg.html"/>
+					<node icon="imageIcon" label="expanded.gif" url="source/[source path] Flixel/docs/images/expanded.gif.html"/>
+					<node icon="imageIcon" label="inherit-arrow.gif" url="source/[source path] Flixel/docs/images/inherit-arrow.gif.html"/>
+					<node icon="imageIcon" label="inheritedSummary.gif" url="source/[source path] Flixel/docs/images/inheritedSummary.gif.html"/>
+					<node icon="imageIcon" label="logo.jpg" url="source/[source path] Flixel/docs/images/logo.jpg.html"/>
+					<node icon="imageIcon" label="P_AlternativeMetadataIndicator_30x28_N.png" url="source/[source path] Flixel/docs/images/P_AlternativeMetadataIndicator_30x28_N.png.html"/>
+					<node icon="imageIcon" label="titleTableBottom.jpg" url="source/[source path] Flixel/docs/images/titleTableBottom.jpg.html"/>
+					<node icon="imageIcon" label="titleTableMiddle.jpg" url="source/[source path] Flixel/docs/images/titleTableMiddle.jpg.html"/>
+					<node icon="imageIcon" label="titleTableTop.jpg" url="source/[source path] Flixel/docs/images/titleTableTop.jpg.html"/>
+				</node>
+				<node label="org">
+					<node label="flixel">
+						<node label="data">
+							<node icon="htmlIcon" label="class-list.html" url="source/[source path] Flixel/docs/org/flixel/data/class-list.html"/>
+							<node icon="htmlIcon" label="FlxAnim.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxAnim.html"/>
+							<node icon="htmlIcon" label="FlxConsole.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxConsole.html"/>
+							<node icon="htmlIcon" label="FlxFactory.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxFactory.html"/>
+							<node icon="htmlIcon" label="FlxFade.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxFade.html"/>
+							<node icon="htmlIcon" label="FlxFlash.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxFlash.html"/>
+							<node icon="htmlIcon" label="FlxGamepad.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxGamepad.html"/>
+							<node icon="htmlIcon" label="FlxInput.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxInput.html"/>
+							<node icon="htmlIcon" label="FlxKeyboard.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxKeyboard.html"/>
+							<node icon="htmlIcon" label="FlxKong.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxKong.html"/>
+							<node icon="htmlIcon" label="FlxList.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxList.html"/>
+							<node icon="htmlIcon" label="FlxMouse.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxMouse.html"/>
+							<node icon="htmlIcon" label="FlxPanel.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxPanel.html"/>
+							<node icon="htmlIcon" label="FlxParticle.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxParticle.html"/>
+							<node icon="htmlIcon" label="FlxPause.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxPause.html"/>
+							<node icon="htmlIcon" label="FlxQuake.html" url="source/[source path] Flixel/docs/org/flixel/data/FlxQuake.html"/>
+							<node icon="htmlIcon" label="package-detail.html" url="source/[source path] Flixel/docs/org/flixel/data/package-detail.html"/>
+						</node>
+						<node label="plugin">
+							<node icon="htmlIcon" label="class-list.html" url="source/[source path] Flixel/docs/org/flixel/plugin/class-list.html"/>
+							<node icon="htmlIcon" label="DebugPathDisplay.html" url="source/[source path] Flixel/docs/org/flixel/plugin/DebugPathDisplay.html"/>
+							<node icon="htmlIcon" label="package-detail.html" url="source/[source path] Flixel/docs/org/flixel/plugin/package-detail.html"/>
+							<node icon="htmlIcon" label="TimerManager.html" url="source/[source path] Flixel/docs/org/flixel/plugin/TimerManager.html"/>
+						</node>
+						<node label="system">
+							<node label="debug">
+								<node icon="htmlIcon" label="class-list.html" url="source/[source path] Flixel/docs/org/flixel/system/debug/class-list.html"/>
+								<node icon="htmlIcon" label="Log.html" url="source/[source path] Flixel/docs/org/flixel/system/debug/Log.html"/>
+								<node icon="htmlIcon" label="package-detail.html" url="source/[source path] Flixel/docs/org/flixel/system/debug/package-detail.html"/>
+								<node icon="htmlIcon" label="Perf.html" url="source/[source path] Flixel/docs/org/flixel/system/debug/Perf.html"/>
+								<node icon="htmlIcon" label="VCR.html" url="source/[source path] Flixel/docs/org/flixel/system/debug/VCR.html"/>
+								<node icon="htmlIcon" label="Vis.html" url="source/[source path] Flixel/docs/org/flixel/system/debug/Vis.html"/>
+								<node icon="htmlIcon" label="Watch.html" url="source/[source path] Flixel/docs/org/flixel/system/debug/Watch.html"/>
+								<node icon="htmlIcon" label="WatchEntry.html" url="source/[source path] Flixel/docs/org/flixel/system/debug/WatchEntry.html"/>
+							</node>
+							<node label="input">
+								<node icon="htmlIcon" label="class-list.html" url="source/[source path] Flixel/docs/org/flixel/system/input/class-list.html"/>
+								<node icon="htmlIcon" label="Input.html" url="source/[source path] Flixel/docs/org/flixel/system/input/Input.html"/>
+								<node icon="htmlIcon" label="Keyboard.html" url="source/[source path] Flixel/docs/org/flixel/system/input/Keyboard.html"/>
+								<node icon="htmlIcon" label="Mouse.html" url="source/[source path] Flixel/docs/org/flixel/system/input/Mouse.html"/>
+								<node icon="htmlIcon" label="package-detail.html" url="source/[source path] Flixel/docs/org/flixel/system/input/package-detail.html"/>
+							</node>
+							<node label="replay">
+								<node icon="htmlIcon" label="class-list.html" url="source/[source path] Flixel/docs/org/flixel/system/replay/class-list.html"/>
+								<node icon="htmlIcon" label="FrameRecord.html" url="source/[source path] Flixel/docs/org/flixel/system/replay/FrameRecord.html"/>
+								<node icon="htmlIcon" label="MouseRecord.html" url="source/[source path] Flixel/docs/org/flixel/system/replay/MouseRecord.html"/>
+								<node icon="htmlIcon" label="package-detail.html" url="source/[source path] Flixel/docs/org/flixel/system/replay/package-detail.html"/>
+							</node>
+							<node icon="htmlIcon" label="class-list.html" url="source/[source path] Flixel/docs/org/flixel/system/class-list.html"/>
+							<node icon="htmlIcon" label="FlxAnim.html" url="source/[source path] Flixel/docs/org/flixel/system/FlxAnim.html"/>
+							<node icon="htmlIcon" label="FlxDebugger.html" url="source/[source path] Flixel/docs/org/flixel/system/FlxDebugger.html"/>
+							<node icon="htmlIcon" label="FlxList.html" url="source/[source path] Flixel/docs/org/flixel/system/FlxList.html"/>
+							<node icon="htmlIcon" label="FlxMonitor.html" url="source/[source path] Flixel/docs/org/flixel/system/FlxMonitor.html"/>
+							<node icon="htmlIcon" label="FlxPreloader.html" url="source/[source path] Flixel/docs/org/flixel/system/FlxPreloader.html"/>
+							<node icon="htmlIcon" label="FlxQuadTree.html" url="source/[source path] Flixel/docs/org/flixel/system/FlxQuadTree.html"/>
+							<node icon="htmlIcon" label="FlxReplay.html" url="source/[source path] Flixel/docs/org/flixel/system/FlxReplay.html"/>
+							<node icon="htmlIcon" label="FlxSound.html" url="source/[source path] Flixel/docs/org/flixel/system/FlxSound.html"/>
+							<node icon="htmlIcon" label="FlxTile.html" url="source/[source path] Flixel/docs/org/flixel/system/FlxTile.html"/>
+							<node icon="htmlIcon" label="FlxTilemapBuffer.html" url="source/[source path] Flixel/docs/org/flixel/system/FlxTilemapBuffer.html"/>
+							<node icon="htmlIcon" label="FlxWindow.html" url="source/[source path] Flixel/docs/org/flixel/system/FlxWindow.html"/>
+							<node icon="htmlIcon" label="package-detail.html" url="source/[source path] Flixel/docs/org/flixel/system/package-detail.html"/>
+						</node>
+						<node icon="htmlIcon" label="class-list.html" url="source/[source path] Flixel/docs/org/flixel/class-list.html"/>
+						<node icon="htmlIcon" label="FlxBasic.html" url="source/[source path] Flixel/docs/org/flixel/FlxBasic.html"/>
+						<node icon="htmlIcon" label="FlxBlock.html" url="source/[source path] Flixel/docs/org/flixel/FlxBlock.html"/>
+						<node icon="htmlIcon" label="FlxButton.html" url="source/[source path] Flixel/docs/org/flixel/FlxButton.html"/>
+						<node icon="htmlIcon" label="FlxCamera.html" url="source/[source path] Flixel/docs/org/flixel/FlxCamera.html"/>
+						<node icon="htmlIcon" label="FlxCore.html" url="source/[source path] Flixel/docs/org/flixel/FlxCore.html"/>
+						<node icon="htmlIcon" label="FlxEmitter.html" url="source/[source path] Flixel/docs/org/flixel/FlxEmitter.html"/>
+						<node icon="htmlIcon" label="FlxG.html" url="source/[source path] Flixel/docs/org/flixel/FlxG.html"/>
+						<node icon="htmlIcon" label="FlxGame.html" url="source/[source path] Flixel/docs/org/flixel/FlxGame.html"/>
+						<node icon="htmlIcon" label="FlxGroup.html" url="source/[source path] Flixel/docs/org/flixel/FlxGroup.html"/>
+						<node icon="htmlIcon" label="FlxLayer.html" url="source/[source path] Flixel/docs/org/flixel/FlxLayer.html"/>
+						<node icon="htmlIcon" label="FlxMonitor.html" url="source/[source path] Flixel/docs/org/flixel/FlxMonitor.html"/>
+						<node icon="htmlIcon" label="FlxObject.html" url="source/[source path] Flixel/docs/org/flixel/FlxObject.html"/>
+						<node icon="htmlIcon" label="FlxParticle.html" url="source/[source path] Flixel/docs/org/flixel/FlxParticle.html"/>
+						<node icon="htmlIcon" label="FlxPath.html" url="source/[source path] Flixel/docs/org/flixel/FlxPath.html"/>
+						<node icon="htmlIcon" label="FlxPoint.html" url="source/[source path] Flixel/docs/org/flixel/FlxPoint.html"/>
+						<node icon="htmlIcon" label="FlxPreloader.html" url="source/[source path] Flixel/docs/org/flixel/FlxPreloader.html"/>
+						<node icon="htmlIcon" label="FlxQuadTree.html" url="source/[source path] Flixel/docs/org/flixel/FlxQuadTree.html"/>
+						<node icon="htmlIcon" label="FlxRect.html" url="source/[source path] Flixel/docs/org/flixel/FlxRect.html"/>
+						<node icon="htmlIcon" label="FlxSave.html" url="source/[source path] Flixel/docs/org/flixel/FlxSave.html"/>
+						<node icon="htmlIcon" label="FlxSound.html" url="source/[source path] Flixel/docs/org/flixel/FlxSound.html"/>
+						<node icon="htmlIcon" label="FlxSprite.html" url="source/[source path] Flixel/docs/org/flixel/FlxSprite.html"/>
+						<node icon="htmlIcon" label="FlxState.html" url="source/[source path] Flixel/docs/org/flixel/FlxState.html"/>
+						<node icon="htmlIcon" label="FlxText.html" url="source/[source path] Flixel/docs/org/flixel/FlxText.html"/>
+						<node icon="htmlIcon" label="FlxTileblock.html" url="source/[source path] Flixel/docs/org/flixel/FlxTileblock.html"/>
+						<node icon="htmlIcon" label="FlxTilemap.html" url="source/[source path] Flixel/docs/org/flixel/FlxTilemap.html"/>
+						<node icon="htmlIcon" label="FlxTimer.html" url="source/[source path] Flixel/docs/org/flixel/FlxTimer.html"/>
+						<node icon="htmlIcon" label="FlxU.html" url="source/[source path] Flixel/docs/org/flixel/FlxU.html"/>
+						<node icon="htmlIcon" label="package-detail.html" url="source/[source path] Flixel/docs/org/flixel/package-detail.html"/>
+					</node>
+				</node>
+				<node label="AC_OETags.js" url="source/[source path] Flixel/docs/AC_OETags.js.txt"/>
+				<node icon="htmlIcon" label="all-classes.html" url="source/[source path] Flixel/docs/all-classes.html"/>
+				<node icon="htmlIcon" label="all-index-A.html" url="source/[source path] Flixel/docs/all-index-A.html"/>
+				<node icon="htmlIcon" label="all-index-B.html" url="source/[source path] Flixel/docs/all-index-B.html"/>
+				<node icon="htmlIcon" label="all-index-C.html" url="source/[source path] Flixel/docs/all-index-C.html"/>
+				<node icon="htmlIcon" label="all-index-D.html" url="source/[source path] Flixel/docs/all-index-D.html"/>
+				<node icon="htmlIcon" label="all-index-E.html" url="source/[source path] Flixel/docs/all-index-E.html"/>
+				<node icon="htmlIcon" label="all-index-F.html" url="source/[source path] Flixel/docs/all-index-F.html"/>
+				<node icon="htmlIcon" label="all-index-G.html" url="source/[source path] Flixel/docs/all-index-G.html"/>
+				<node icon="htmlIcon" label="all-index-H.html" url="source/[source path] Flixel/docs/all-index-H.html"/>
+				<node icon="htmlIcon" label="all-index-I.html" url="source/[source path] Flixel/docs/all-index-I.html"/>
+				<node icon="htmlIcon" label="all-index-J.html" url="source/[source path] Flixel/docs/all-index-J.html"/>
+				<node icon="htmlIcon" label="all-index-K.html" url="source/[source path] Flixel/docs/all-index-K.html"/>
+				<node icon="htmlIcon" label="all-index-L.html" url="source/[source path] Flixel/docs/all-index-L.html"/>
+				<node icon="htmlIcon" label="all-index-M.html" url="source/[source path] Flixel/docs/all-index-M.html"/>
+				<node icon="htmlIcon" label="all-index-N.html" url="source/[source path] Flixel/docs/all-index-N.html"/>
+				<node icon="htmlIcon" label="all-index-O.html" url="source/[source path] Flixel/docs/all-index-O.html"/>
+				<node icon="htmlIcon" label="all-index-P.html" url="source/[source path] Flixel/docs/all-index-P.html"/>
+				<node icon="htmlIcon" label="all-index-Q.html" url="source/[source path] Flixel/docs/all-index-Q.html"/>
+				<node icon="htmlIcon" label="all-index-R.html" url="source/[source path] Flixel/docs/all-index-R.html"/>
+				<node icon="htmlIcon" label="all-index-S.html" url="source/[source path] Flixel/docs/all-index-S.html"/>
+				<node icon="htmlIcon" label="all-index-T.html" url="source/[source path] Flixel/docs/all-index-T.html"/>
+				<node icon="htmlIcon" label="all-index-U.html" url="source/[source path] Flixel/docs/all-index-U.html"/>
+				<node icon="htmlIcon" label="all-index-V.html" url="source/[source path] Flixel/docs/all-index-V.html"/>
+				<node icon="htmlIcon" label="all-index-W.html" url="source/[source path] Flixel/docs/all-index-W.html"/>
+				<node icon="htmlIcon" label="all-index-X.html" url="source/[source path] Flixel/docs/all-index-X.html"/>
+				<node icon="htmlIcon" label="all-index-Y.html" url="source/[source path] Flixel/docs/all-index-Y.html"/>
+				<node icon="htmlIcon" label="all-index-Z.html" url="source/[source path] Flixel/docs/all-index-Z.html"/>
+				<node icon="htmlIcon" label="appendixes.html" url="source/[source path] Flixel/docs/appendixes.html"/>
+				<node label="asdoc.js" url="source/[source path] Flixel/docs/asdoc.js.txt"/>
+				<node icon="htmlIcon" label="class-summary.html" url="source/[source path] Flixel/docs/class-summary.html"/>
+				<node label="cookies.js" url="source/[source path] Flixel/docs/cookies.js.txt"/>
+				<node label="help.js" url="source/[source path] Flixel/docs/help.js.txt"/>
+				<node icon="htmlIcon" label="index-list.html" url="source/[source path] Flixel/docs/index-list.html"/>
+				<node icon="htmlIcon" label="index.html" url="source/[source path] Flixel/docs/index.html"/>
+				<node icon="htmlIcon" label="mxml-tags.html" url="source/[source path] Flixel/docs/mxml-tags.html"/>
+				<node icon="cssIcon" label="override.css" url="source/[source path] Flixel/docs/override.css.html"/>
+				<node icon="htmlIcon" label="package-frame.html" url="source/[source path] Flixel/docs/package-frame.html"/>
+				<node icon="htmlIcon" label="package-list.html" url="source/[source path] Flixel/docs/package-list.html"/>
+				<node icon="htmlIcon" label="package-summary.html" url="source/[source path] Flixel/docs/package-summary.html"/>
+				<node icon="cssIcon" label="print.css" url="source/[source path] Flixel/docs/print.css.html"/>
+				<node icon="cssIcon" label="style.css" url="source/[source path] Flixel/docs/style.css.html"/>
+				<node icon="htmlIcon" label="title-bar.html" url="source/[source path] Flixel/docs/title-bar.html"/>
+				<node label="validation_errors.log" url="source/[source path] Flixel/docs/validation_errors.log"/>
+			</node>
+			<node icon="packageIcon" label="org.flixel" expanded="true">
+				<node icon="actionScriptIcon" label="FlxBasic.as" url="source/[source path] Flixel/org/flixel/FlxBasic.as.html"/>
+				<node icon="actionScriptIcon" label="FlxButton.as" url="source/[source path] Flixel/org/flixel/FlxButton.as.html"/>
+				<node icon="actionScriptIcon" label="FlxCamera.as" url="source/[source path] Flixel/org/flixel/FlxCamera.as.html"/>
+				<node icon="actionScriptIcon" label="FlxEmitter.as" url="source/[source path] Flixel/org/flixel/FlxEmitter.as.html"/>
+				<node icon="actionScriptIcon" label="FlxG.as" url="source/[source path] Flixel/org/flixel/FlxG.as.html"/>
+				<node icon="actionScriptIcon" label="FlxGame.as" url="source/[source path] Flixel/org/flixel/FlxGame.as.html"/>
+				<node icon="actionScriptIcon" label="FlxGroup.as" url="source/[source path] Flixel/org/flixel/FlxGroup.as.html"/>
+				<node icon="actionScriptIcon" label="FlxObject.as" url="source/[source path] Flixel/org/flixel/FlxObject.as.html"/>
+				<node icon="actionScriptIcon" label="FlxParticle.as" url="source/[source path] Flixel/org/flixel/FlxParticle.as.html"/>
+				<node icon="actionScriptIcon" label="FlxPath.as" url="source/[source path] Flixel/org/flixel/FlxPath.as.html"/>
+				<node icon="actionScriptIcon" label="FlxPoint.as" url="source/[source path] Flixel/org/flixel/FlxPoint.as.html"/>
+				<node icon="actionScriptIcon" label="FlxRect.as" url="source/[source path] Flixel/org/flixel/FlxRect.as.html"/>
+				<node icon="actionScriptIcon" label="FlxSave.as" url="source/[source path] Flixel/org/flixel/FlxSave.as.html"/>
+				<node icon="actionScriptIcon" label="FlxSound.as" url="source/[source path] Flixel/org/flixel/FlxSound.as.html"/>
+				<node icon="actionScriptIcon" label="FlxSprite.as" url="source/[source path] Flixel/org/flixel/FlxSprite.as.html"/>
+				<node icon="actionScriptIcon" label="FlxState.as" url="source/[source path] Flixel/org/flixel/FlxState.as.html"/>
+				<node icon="actionScriptIcon" label="FlxText.as" url="source/[source path] Flixel/org/flixel/FlxText.as.html"/>
+				<node icon="actionScriptIcon" label="FlxTileblock.as" url="source/[source path] Flixel/org/flixel/FlxTileblock.as.html"/>
+				<node icon="actionScriptIcon" label="FlxTilemap.as" url="source/[source path] Flixel/org/flixel/FlxTilemap.as.html"/>
+				<node icon="actionScriptIcon" label="FlxTimer.as" url="source/[source path] Flixel/org/flixel/FlxTimer.as.html"/>
+				<node icon="actionScriptIcon" label="FlxU.as" url="source/[source path] Flixel/org/flixel/FlxU.as.html"/>
+			</node>
+			<node label="org.flixel.data">
+				<node label="vcr">
+					<node icon="imageIcon" label="flixel.png" url="source/[source path] Flixel/org/flixel/data/vcr/flixel.png.html"/>
+					<node icon="imageIcon" label="open.png" url="source/[source path] Flixel/org/flixel/data/vcr/open.png.html"/>
+					<node icon="imageIcon" label="pause.png" url="source/[source path] Flixel/org/flixel/data/vcr/pause.png.html"/>
+					<node icon="imageIcon" label="play.png" url="source/[source path] Flixel/org/flixel/data/vcr/play.png.html"/>
+					<node icon="imageIcon" label="record_off.png" url="source/[source path] Flixel/org/flixel/data/vcr/record_off.png.html"/>
+					<node icon="imageIcon" label="record_on.png" url="source/[source path] Flixel/org/flixel/data/vcr/record_on.png.html"/>
+					<node icon="imageIcon" label="restart.png" url="source/[source path] Flixel/org/flixel/data/vcr/restart.png.html"/>
+					<node icon="imageIcon" label="step.png" url="source/[source path] Flixel/org/flixel/data/vcr/step.png.html"/>
+					<node icon="imageIcon" label="stop.png" url="source/[source path] Flixel/org/flixel/data/vcr/stop.png.html"/>
+				</node>
+				<node label="vis">
+					<node icon="imageIcon" label="bounds.png" url="source/[source path] Flixel/org/flixel/data/vis/bounds.png.html"/>
+				</node>
+				<node icon="imageIcon" label="autotiles.png" url="source/[source path] Flixel/org/flixel/data/autotiles.png.html"/>
+				<node icon="imageIcon" label="autotiles_alt.png" url="source/[source path] Flixel/org/flixel/data/autotiles_alt.png.html"/>
+				<node label="beep.mp3" url="source/[source path] Flixel/org/flixel/data/beep.mp3"/>
+				<node icon="imageIcon" label="button.png" url="source/[source path] Flixel/org/flixel/data/button.png.html"/>
+				<node icon="imageIcon" label="cursor.png" url="source/[source path] Flixel/org/flixel/data/cursor.png.html"/>
+				<node icon="imageIcon" label="default.png" url="source/[source path] Flixel/org/flixel/data/default.png.html"/>
+				<node icon="imageIcon" label="handle.png" url="source/[source path] Flixel/org/flixel/data/handle.png.html"/>
+				<node icon="imageIcon" label="logo.png" url="source/[source path] Flixel/org/flixel/data/logo.png.html"/>
+				<node icon="imageIcon" label="logo_corners.png" url="source/[source path] Flixel/org/flixel/data/logo_corners.png.html"/>
+				<node icon="imageIcon" label="logo_light.png" url="source/[source path] Flixel/org/flixel/data/logo_light.png.html"/>
+				<node label="nokiafc22.ttf" url="source/[source path] Flixel/org/flixel/data/nokiafc22.ttf"/>
+			</node>
+			<node icon="packageIcon" label="org.flixel.plugin" expanded="true">
+				<node icon="actionScriptIcon" label="DebugPathDisplay.as" url="source/[source path] Flixel/org/flixel/plugin/DebugPathDisplay.as.html"/>
+				<node icon="actionScriptIcon" label="TimerManager.as" url="source/[source path] Flixel/org/flixel/plugin/TimerManager.as.html"/>
+			</node>
+			<node icon="packageIcon" label="org.flixel.system" expanded="true">
+				<node icon="actionScriptIcon" label="FlxAnim.as" url="source/[source path] Flixel/org/flixel/system/FlxAnim.as.html"/>
+				<node icon="actionScriptIcon" label="FlxDebugger.as" url="source/[source path] Flixel/org/flixel/system/FlxDebugger.as.html"/>
+				<node icon="actionScriptIcon" label="FlxList.as" url="source/[source path] Flixel/org/flixel/system/FlxList.as.html"/>
+				<node icon="actionScriptIcon" label="FlxPreloader.as" url="source/[source path] Flixel/org/flixel/system/FlxPreloader.as.html"/>
+				<node icon="actionScriptIcon" label="FlxQuadTree.as" url="source/[source path] Flixel/org/flixel/system/FlxQuadTree.as.html"/>
+				<node icon="actionScriptIcon" label="FlxReplay.as" url="source/[source path] Flixel/org/flixel/system/FlxReplay.as.html"/>
+				<node icon="actionScriptIcon" label="FlxTile.as" url="source/[source path] Flixel/org/flixel/system/FlxTile.as.html"/>
+				<node icon="actionScriptIcon" label="FlxTilemapBuffer.as" url="source/[source path] Flixel/org/flixel/system/FlxTilemapBuffer.as.html"/>
+				<node icon="actionScriptIcon" label="FlxWindow.as" url="source/[source path] Flixel/org/flixel/system/FlxWindow.as.html"/>
+			</node>
+			<node icon="packageIcon" label="org.flixel.system.debug" expanded="true">
+				<node icon="actionScriptIcon" label="Log.as" url="source/[source path] Flixel/org/flixel/system/debug/Log.as.html"/>
+				<node icon="actionScriptIcon" label="Perf.as" url="source/[source path] Flixel/org/flixel/system/debug/Perf.as.html"/>
+				<node icon="actionScriptIcon" label="VCR.as" url="source/[source path] Flixel/org/flixel/system/debug/VCR.as.html"/>
+				<node icon="actionScriptIcon" label="Vis.as" url="source/[source path] Flixel/org/flixel/system/debug/Vis.as.html"/>
+				<node icon="actionScriptIcon" label="Watch.as" url="source/[source path] Flixel/org/flixel/system/debug/Watch.as.html"/>
+				<node icon="actionScriptIcon" label="WatchEntry.as" url="source/[source path] Flixel/org/flixel/system/debug/WatchEntry.as.html"/>
+			</node>
+			<node icon="packageIcon" label="org.flixel.system.input" expanded="true">
+				<node icon="actionScriptIcon" label="Input.as" url="source/[source path] Flixel/org/flixel/system/input/Input.as.html"/>
+				<node icon="actionScriptIcon" label="Keyboard.as" url="source/[source path] Flixel/org/flixel/system/input/Keyboard.as.html"/>
+				<node icon="actionScriptIcon" label="Mouse.as" url="source/[source path] Flixel/org/flixel/system/input/Mouse.as.html"/>
+			</node>
+			<node icon="packageIcon" label="org.flixel.system.replay" expanded="true">
+				<node icon="actionScriptIcon" label="FrameRecord.as" url="source/[source path] Flixel/org/flixel/system/replay/FrameRecord.as.html"/>
+				<node icon="actionScriptIcon" label="MouseRecord.as" url="source/[source path] Flixel/org/flixel/system/replay/MouseRecord.as.html"/>
+			</node>
+			<node label="build_docs.sh" url="source/[source path] Flixel/build_docs.sh"/>
+			<node label="flx.py" url="source/[source path] Flixel/flx.py"/>
+			<node label="license.txt" url="source/[source path] Flixel/license.txt"/>
+			<node label="readme.txt" url="source/[source path] Flixel/readme.txt"/>
+		</node>
+		<node label="assets">
+			<node label="images">
+				<node icon="imageIcon" label="baseball.png" url="source/assets/images/baseball.png.html"/>
+				<node icon="imageIcon" label="gamepad.png" url="source/assets/images/gamepad.png.html"/>
+				<node icon="imageIcon" label="player.png" url="source/assets/images/player.png.html"/>
+				<node icon="imageIcon" label="spaceships.png" url="source/assets/images/spaceships.png.html"/>
+				<node icon="imageIcon" label="story.png" url="source/assets/images/story.png.html"/>
+				<node icon="imageIcon" label="table.png" url="source/assets/images/table.png.html"/>
+				<node icon="imageIcon" label="television.png" url="source/assets/images/television.png.html"/>
+			</node>
+			<node label="sounds">
+				<node label="ActivateShields01.mp3" url="source/assets/sounds/ActivateShields01.mp3"/>
+				<node label="ActivateShields02.mp3" url="source/assets/sounds/ActivateShields02.mp3"/>
+				<node label="ActivateShields03.mp3" url="source/assets/sounds/ActivateShields03.mp3"/>
+				<node label="ActivateShields04.mp3" url="source/assets/sounds/ActivateShields04.mp3"/>
+				<node label="ActivateShields05.mp3" url="source/assets/sounds/ActivateShields05.mp3"/>
+				<node label="Explosion01.mp3" url="source/assets/sounds/Explosion01.mp3"/>
+				<node label="Explosion02.mp3" url="source/assets/sounds/Explosion02.mp3"/>
+				<node label="Explosion03.mp3" url="source/assets/sounds/Explosion03.mp3"/>
+				<node label="Explosion04.mp3" url="source/assets/sounds/Explosion04.mp3"/>
+				<node label="HighScore01.mp3" url="source/assets/sounds/HighScore01.mp3"/>
+				<node label="Laser01.mp3" url="source/assets/sounds/Laser01.mp3"/>
+				<node label="Laser02.mp3" url="source/assets/sounds/Laser02.mp3"/>
+				<node label="Laser03.mp3" url="source/assets/sounds/Laser03.mp3"/>
+				<node label="Laser04.mp3" url="source/assets/sounds/Laser04.mp3"/>
+				<node label="Laser05.mp3" url="source/assets/sounds/Laser05.mp3"/>
+				<node label="Laser06.mp3" url="source/assets/sounds/Laser06.mp3"/>
+				<node label="Laser07.mp3" url="source/assets/sounds/Laser07.mp3"/>
+				<node label="Laser08.mp3" url="source/assets/sounds/Laser08.mp3"/>
+				<node label="Pickup_Coin.mp3" url="source/assets/sounds/Pickup_Coin.mp3"/>
+				<node label="Pickup_Coin2.mp3" url="source/assets/sounds/Pickup_Coin2.mp3"/>
+				<node label="Pickup_Coin3.mp3" url="source/assets/sounds/Pickup_Coin3.mp3"/>
+				<node label="Powerup.mp3" url="source/assets/sounds/Powerup.mp3"/>
+				<node label="Powerup3.mp3" url="source/assets/sounds/Powerup3.mp3"/>
+				<node label="Powerup9.mp3" url="source/assets/sounds/Powerup9.mp3"/>
+				<node label="ShieldsReady01.mp3" url="source/assets/sounds/ShieldsReady01.mp3"/>
+				<node label="ShieldsReady02.mp3" url="source/assets/sounds/ShieldsReady02.mp3"/>
+				<node label="ShieldsReady03.mp3" url="source/assets/sounds/ShieldsReady03.mp3"/>
+				<node label="ShieldsReady04.mp3" url="source/assets/sounds/ShieldsReady04.mp3"/>
+				<node label="ShieldsReady05.mp3" url="source/assets/sounds/ShieldsReady05.mp3"/>
+				<node label="ShieldsReady06.mp3" url="source/assets/sounds/ShieldsReady06.mp3"/>
+			</node>
+		</node>
+		<node label="html-template">
+			<node label="history">
+				<node icon="cssIcon" label="history.css" url="source/html-template/history/history.css.html"/>
+				<node label="history.js" url="source/html-template/history/history.js.txt"/>
+				<node icon="htmlIcon" label="historyFrame.html" url="source/html-template/history/historyFrame.html"/>
+			</node>
+			<node icon="htmlIcon" label="index.template.html" url="source/html-template/index.template.html"/>
+			<node icon="swfIcon" label="playerProductInstall.swf" url="source/html-template/playerProductInstall.swf"/>
+			<node label="swfobject.js" url="source/html-template/swfobject.js.txt"/>
+		</node>
+		<node label="src">
+			<node icon="packageIcon" label="entities" expanded="true">
+				<node icon="actionScriptIcon" label="Baseball.as" url="source/entities/Baseball.as.html"/>
+				<node icon="actionScriptIcon" label="EnemyShip.as" url="source/entities/EnemyShip.as.html"/>
+				<node icon="actionScriptIcon" label="Gamepad.as" url="source/entities/Gamepad.as.html"/>
+				<node icon="actionScriptIcon" label="GamepadButton.as" url="source/entities/GamepadButton.as.html"/>
+				<node icon="actionScriptIcon" label="Laser.as" url="source/entities/Laser.as.html"/>
+				<node icon="actionScriptIcon" label="Player.as" url="source/entities/Player.as.html"/>
+				<node icon="actionScriptIcon" label="PlayerShip.as" url="source/entities/PlayerShip.as.html"/>
+				<node icon="actionScriptIcon" label="Television.as" url="source/entities/Television.as.html"/>
+				<node icon="actionScriptIcon" label="TVScreen.as" url="source/entities/TVScreen.as.html"/>
+			</node>
+			<node icon="packageIcon" label="screens" expanded="true">
+				<node icon="actionScriptIcon" label="GameState.as" url="source/screens/GameState.as.html"/>
+				<node icon="actionScriptIcon" label="MenuState.as" url="source/screens/MenuState.as.html"/>
+				<node icon="actionScriptIcon" label="StoryState.as" url="source/screens/StoryState.as.html"/>
+			</node>
+			<node icon="actionScriptIcon" label="Entity.as" url="source/Entity.as.html"/>
+			<node icon="mxmlAppIcon" selected="true" label="LD26_Compo.as" url="source/LD26_Compo.as.html"/>
+			<node icon="actionScriptIcon" label="ScreenState.as" url="source/ScreenState.as.html"/>
+		</node>
+	</nodes>
+	<zipfile label="Download source (ZIP, 1334K)" url="LD26_Compo.zip">
+	</zipfile>
+	<sdklink label="Download Flex SDK" url="http://www.adobe.com/go/flex451_sdk_download">
+	</sdklink>
+</index>
